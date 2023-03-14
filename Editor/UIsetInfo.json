@@ -1,0 +1,39 @@
+{
+    "UIsetInfo": {
+        "Property": [
+            "CoolTime",
+            "CoolTimeMiddle",
+            "CoolTimeLong",
+            "Lock",
+            "Mute"
+        ],
+        "MenuList": [
+            "MainMenu",
+            "SubMenu1",
+            "SubMenu2",
+            "SubMenu3"
+        ],
+        "LayarList": [
+            {
+                "LayarName": "Main",
+                "Category": "toggle",
+                "Count": 6
+            },
+            {
+                "LayarName": "Sub1",
+                "Category": "toggle",
+                "Count": 2
+            },
+            {
+                "LayarName": "Sub2",
+                "Category": "Int",
+                "Count": 6
+            },
+            {
+                "LayarName": "Sub3",
+                "Category": "toggle",
+                "Count": 5
+            }
+        ]
+    }
+}
