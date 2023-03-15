@@ -1,9 +1,6 @@
 {
     "UIsetInfo": {
         "Property": [
-            "CoolTime",
-            "CoolTimeMiddle",
-            "CoolTimeLong",
             "Lock",
             "Mute"
         ],

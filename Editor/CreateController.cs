@@ -81,22 +81,35 @@ public class CreateController : EditorWindow
                 JObject jsonObj = JObject.Parse(json);
                 AddLayar ad = new AddLayar();
 
+                //クールタイム用のパラメータセット
+                animatorController.AddParameter("CoolTimeClose", AnimatorControllerParameterType.Bool);
+                animatorController.AddParameter("CoolTimeOpen", AnimatorControllerParameterType.Bool);
+
                 //パラメータセット
                 foreach (string property in jsonObj["UIsetInfo"]["Property"])
                 {
                     animatorController.AddParameter(property + "Contact", AnimatorControllerParameterType.Bool);
                     animatorController.AddParameter(property + "Toggle", AnimatorControllerParameterType.Bool);
                     ad.CreateContactLayer(animatorController, property, writeDefault);
+                    ad.CreateToggleLayer(animatorController, property, writeDefault);
                 }
                 foreach (string menuList in jsonObj["UIsetInfo"]["MenuList"])
                 {
-                    Debug.Log(menuList);
+                    animatorController.AddParameter(menuList + "Contact", AnimatorControllerParameterType.Bool);
+                    animatorController.AddParameter(menuList + "Toggle", AnimatorControllerParameterType.Bool);
+                    ad.CreateContactLayer(animatorController, menuList, writeDefault);
+                    ad.CreateToggleLayer(animatorController, menuList, writeDefault);
                 }
                 foreach (JObject layarInfo in jsonObj["UIsetInfo"]["LayarList"])
                 {
-                    Debug.Log(layarInfo["LayarName"]);
-                    Debug.Log(layarInfo["Category"]);
-                    Debug.Log(layarInfo["Count"]);
+                    string layarName = (string)layarInfo["LayarName"];
+                    for (int count = 1; count <= int.Parse((string)layarInfo["Count"]); count++)
+                    {
+                        animatorController.AddParameter(layarName + "Object" + count + "Contact", AnimatorControllerParameterType.Bool);
+                        animatorController.AddParameter(layarName + "Object" + count + "Toggle", AnimatorControllerParameterType.Bool);
+                        ad.CreateContactLayer(animatorController, layarName + "Object" + count, writeDefault);
+                        ad.CreateToggleLayer(animatorController, layarName + "Object" + count, writeDefault);
+                    }
                 }
 
 
@@ -118,50 +131,6 @@ public class CreateController : EditorWindow
 
 
         }
-    }
-
-
-
-
-
-    /// <summary>
-    ///    FXレイヤーへ各種レイヤーを追加します
-    /// </summary>
-    /// <param name="process">Main or Sub1 or Sub2 or Sub3 </param>
-    /// <param name="FxLayer">アニメーションレイヤー</param>
-    /// <param name="number">レイヤーに付与する識別No</param>
-    /// <return>null</return>
-
-
-
-
-
-
-
-
-
-
-    //トグルレイヤー作成用
-    private AnimatorControllerLayer CreateToggleLayer(int number)
-    {
-        AnimatorControllerLayer toggleLayer = new AnimatorControllerLayer
-        {
-            name = "オブジェクト" + number + "トグル",
-            defaultWeight = 1,
-            stateMachine = new AnimatorStateMachine()
-        };
-        return toggleLayer;
-    }
-    //オブジェクトレイヤー作成用
-    private AnimatorControllerLayer CreateObjectLayer(int number)
-    {
-        AnimatorControllerLayer objectLayer = new AnimatorControllerLayer
-        {
-            name = "オブジェクト" + number,
-            defaultWeight = 1,
-            stateMachine = new AnimatorStateMachine()
-        };
-        return objectLayer;
     }
 }
 
