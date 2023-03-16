@@ -22,8 +22,20 @@ namespace HakoTools
             FXController.AddParameter("CoolTimeLongOpen", AnimatorControllerParameterType.Bool);
             FXController.AddParameter("CoolTimeLongClose", AnimatorControllerParameterType.Bool);
 
+            string[] nameList = new string[]{
+                "Empty",
+                "ALLON",
+                "Cancel",
+                "CancelMiddle",
+                "CancelLong",
+                "Select",
+                "SelectMiddle",
+                "SelectLong"
+            };
+
             //アニメーション用変数
-            AnimationClip animeALLON = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
+            AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
+            AnimationClip animeALLON = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/ALLON.anim", typeof(AnimationClip)) as AnimationClip;
             AnimationClip animeCancelLong = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/CancelLong.anim", typeof(AnimationClip)) as AnimationClip;
             AnimationClip animeCancelMiddle = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/CancelMiddle.anim", typeof(AnimationClip)) as AnimationClip;
             AnimationClip animeCancel = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Cancel.anim", typeof(AnimationClip)) as AnimationClip;
@@ -38,13 +50,174 @@ namespace HakoTools
                 defaultWeight = 1,
                 stateMachine = new AnimatorStateMachine()
             };
-            SoundLayer.stateMachine.AddState("ALLON");
-            SoundLayer.stateMachine.AddState("Select");
-            SoundLayer.stateMachine.AddState("SelectLong");
-            SoundLayer.stateMachine.AddState("SelectMiddle");
-            SoundLayer.stateMachine.AddState("Cancle");
-            SoundLayer.stateMachine.AddState("CancleLong");
-            SoundLayer.stateMachine.AddState("CancleMiddle");
+            FXController.AddLayer(SoundLayer);
+
+            //ステート追加
+            var stateEmpty = SoundLayer.stateMachine.AddState("Empty", new Vector3(300, 120, 0));
+            stateEmpty.writeDefaultValues = writeDefault;
+            stateEmpty.motion = animeEmpty;
+
+            var stateALLON = SoundLayer.stateMachine.AddState("ALLON", new Vector3(300, 300, 0));
+            stateALLON.writeDefaultValues = writeDefault;
+            stateALLON.motion = animeALLON;
+
+            var stateSelect = SoundLayer.stateMachine.AddState("Select", new Vector3(0, 250, 0));
+            stateSelect.writeDefaultValues = writeDefault;
+            stateSelect.motion = animeSelect;
+
+            var stateSelectLong = SoundLayer.stateMachine.AddState("SelectLong", new Vector3(50, 400, 0));
+            stateSelectLong.writeDefaultValues = writeDefault;
+            stateSelectLong.motion = animeSelectLong;
+
+            var stateSelectMiddle = SoundLayer.stateMachine.AddState("SelectMiddle", new Vector3(100, 550, 0));
+            stateSelectMiddle.writeDefaultValues = writeDefault;
+            stateSelectMiddle.motion = animeSelectMiddle;
+
+            var stateCancel = SoundLayer.stateMachine.AddState("Cancle", new Vector3(600, 250, 0));
+            stateCancel.writeDefaultValues = writeDefault;
+            stateCancel.motion = animeCancel;
+
+            var stateCancelLong = SoundLayer.stateMachine.AddState("CancleLong", new Vector3(500, 400, 0));
+            stateCancelLong.writeDefaultValues = writeDefault;
+            stateCancelLong.motion = animeCancelLong;
+
+            var stateCancelMiddle = SoundLayer.stateMachine.AddState("CancleMiddle", new Vector3(400, 550, 0));
+            stateCancelMiddle.writeDefaultValues = writeDefault;
+            stateCancelMiddle.motion = animeCancelMiddle;
+
+            //stateALLONにドライバパラメータ追加
+            var driverStateALLON = stateALLON.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
+            driverStateALLON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+            {
+                name = "CoolTimeOpen",
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
+                value = 0
+            });
+            driverStateALLON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+            {
+                name = "CoolTimeClose",
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
+                value = 0
+            });
+            driverStateALLON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+            {
+                name = "CoolTimeLongOpen",
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
+                value = 0
+            });
+            driverStateALLON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+            {
+                name = "CoolTimeLongClose",
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
+                value = 0
+            });
+            driverStateALLON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+            {
+                name = "CoolTimeMiddleOpen",
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
+                value = 0
+            });
+            driverStateALLON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+            {
+                name = "CoolTimeMiddleClose",
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
+                value = 0
+            });
+            driverStateALLON.localOnly = true;
+
+
+            //EmptyToCancel
+            var transEmptyToCancle = stateEmpty.AddTransition(stateCancel);
+            transEmptyToCancle.exitTime = 0;
+            transEmptyToCancle.duration = 0;
+            transEmptyToCancle.hasExitTime = false;
+            transEmptyToCancle.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeClose");
+
+            //EmptyToCancelMiddle
+            var transEmptyToCancelMiddle = stateEmpty.AddTransition(stateCancelMiddle);
+            transEmptyToCancelMiddle.exitTime = 0;
+            transEmptyToCancelMiddle.duration = 0;
+            transEmptyToCancelMiddle.hasExitTime = false;
+            transEmptyToCancelMiddle.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeMiddleClose");
+
+            //EmptyToCancelLong
+            var transEmptyToCancleLong = stateEmpty.AddTransition(stateCancelLong);
+            transEmptyToCancleLong.exitTime = 0;
+            transEmptyToCancleLong.duration = 0;
+            transEmptyToCancleLong.hasExitTime = false;
+            transEmptyToCancleLong.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeLongClose");
+
+            //EmptyToSelect
+            var transEmptyToSelect = stateEmpty.AddTransition(stateSelect);
+            transEmptyToSelect.exitTime = 0;
+            transEmptyToSelect.duration = 0;
+            transEmptyToSelect.hasExitTime = false;
+            transEmptyToSelect.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeOpen");
+
+            //EmptyToSelectMiddle
+            var transEmptyToSelectMiddle = stateEmpty.AddTransition(stateSelectMiddle);
+            transEmptyToSelectMiddle.exitTime = 0;
+            transEmptyToSelectMiddle.duration = 0;
+            transEmptyToSelectMiddle.hasExitTime = false;
+            transEmptyToSelectMiddle.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeMiddleOpen");
+
+            //EmptyToSelectLong
+            var transEmptyToSelectLong = stateEmpty.AddTransition(stateSelectLong);
+            transEmptyToSelectLong.exitTime = 0;
+            transEmptyToSelectLong.duration = 0;
+            transEmptyToSelectLong.hasExitTime = false;
+            transEmptyToSelectLong.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeLongOpen");
+
+            //CancelToALLON
+            var transCancelToALLON = stateCancel.AddTransition(stateALLON);
+            transCancelToALLON.exitTime = 1;
+            transCancelToALLON.hasFixedDuration = true;
+            transCancelToALLON.duration = 0;
+            transCancelToALLON.offset = 0;
+
+            //CancelMiddleToALLON
+            var transCancelMiddleToALLON = stateCancelMiddle.AddTransition(stateALLON);
+            transCancelMiddleToALLON.exitTime = 1;
+            transCancelMiddleToALLON.hasFixedDuration = true;
+            transCancelMiddleToALLON.duration = 0;
+            transCancelMiddleToALLON.offset = 0;
+
+            //CancelLongToALLON
+            var transCancelLongToALLON = stateCancelLong.AddTransition(stateALLON);
+            transCancelLongToALLON.exitTime = 1;
+            transCancelLongToALLON.hasFixedDuration = true;
+            transCancelLongToALLON.duration = 0;
+            transCancelLongToALLON.offset = 0;
+
+            //SelectToALLON
+            var transSelectToALLON = stateSelect.AddTransition(stateALLON);
+            transSelectToALLON.exitTime = 1;
+            transSelectToALLON.hasFixedDuration = true;
+            transSelectToALLON.duration = 0;
+            transSelectToALLON.offset = 0;
+
+            //SelectMiddleToALLON
+            var transSelectMiddleToALLON = stateSelectMiddle.AddTransition(stateALLON);
+            transSelectMiddleToALLON.exitTime = 1;
+            transSelectMiddleToALLON.hasFixedDuration = true;
+            transSelectMiddleToALLON.duration = 0;
+            transSelectMiddleToALLON.offset = 0;
+
+            //SelectLongToALLON
+            var transSelectLongToALLON = stateSelectLong.AddTransition(stateALLON);
+            transSelectLongToALLON.exitTime = 1;
+            transSelectLongToALLON.hasFixedDuration = true;
+            transSelectLongToALLON.duration = 0;
+            transSelectLongToALLON.offset = 0;
+
+            //ALLONtoEmpty
+            var transALLONToEmpty = stateALLON.AddTransition(stateEmpty);
+            transALLONToEmpty.exitTime = 1;
+            transALLONToEmpty.hasFixedDuration = true;
+            transALLONToEmpty.duration = 0;
+            transALLONToEmpty.offset = 0;
+
+
 
         }
 
