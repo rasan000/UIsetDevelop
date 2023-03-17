@@ -6,6 +6,8 @@ using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using HakoTools;
 using Newtonsoft.Json.Linq;
+//ModularAvatar用
+using nadena.dev.modular_avatar.core;
 
 /// <summary>
 /// UIset用のアニメーターを、セットしたアバター用に新規作成します
@@ -17,8 +19,11 @@ public class CreateController : EditorWindow
     //コントローラーとアニメーションを置くフォルダ
     private const string controllerFolderPath = "Assets/UIset/Animations";
 
+    //アバター
     private VRCAvatarDescriptor avatarDescriptor;
+    private GameObject avatarObject;
     public Vector2 Scroll = new Vector2(200, 200);
+
 
     //バグのもとなのでwriteDefaultはfalseで
     bool writeDefault = false;
@@ -35,8 +40,9 @@ public class CreateController : EditorWindow
     //UIFXのセットアップ
     private void OnGUI()
     {
-        avatarDescriptor =
-            (VRCAvatarDescriptor)EditorGUILayout.ObjectField("Avatar", avatarDescriptor, typeof(VRCAvatarDescriptor), true);
+        avatarObject = EditorGUILayout.ObjectField("AvatarName", avatarObject, typeof(GameObject), true) as GameObject;
+
+        avatarDescriptor = new VRCAvatarDescriptor();
 
         //window
         GUILayout.Space(20);
@@ -46,6 +52,11 @@ public class CreateController : EditorWindow
         GUILayout.BeginHorizontal();
         GUILayout.EndHorizontal();
 
+        //avatarがセットされていたらavatarDisprictorを取得
+        if (avatarObject != null)
+        {
+            avatarDescriptor = avatarObject.GetComponent<VRCAvatarDescriptor>();
+        }
 
         //アバターがセットされていない場合はエラーで終了
         if (avatarDescriptor == null && CreateUIFXButton)
@@ -125,7 +136,6 @@ public class CreateController : EditorWindow
                         {
                             animatorController.AddParameter(layarName + "Object" + count + "Contact", AnimatorControllerParameterType.Bool);
                             animatorController.AddParameter(layarName + "Object" + count + "Toggle", AnimatorControllerParameterType.Bool);
-                            animatorController.AddParameter(layarName + "Object" + count, AnimatorControllerParameterType.Bool);
                             ad.CreateContactLayer(animatorController, layarName + "Object" + count, writeDefault);
                             ad.CreateToggleLayer(animatorController, layarName + "Object" + count, writeDefault);
                             ad.CreateObjectLayer(animatorController, layarName + "Object" + count, writeDefault);
@@ -138,7 +148,6 @@ public class CreateController : EditorWindow
                         for (int count = 1; count <= int.Parse((string)layarInfo["Count"]); count++)
                         {
                             animatorController.AddParameter(layarName + "Object" + count + "Contact", AnimatorControllerParameterType.Bool);
-                            animatorController.AddParameter(layarName + "Object" + count + "Toggle", AnimatorControllerParameterType.Bool);
                             ad.CreateContactLayerInt(animatorController, layarName, count, writeDefault);
                             ad.CreateToggleLayerInt(animatorController, layarName, count, writeDefault);
                             ad.CreateObjectLayerInt(animatorController, layarName, count, writeDefault);
@@ -146,13 +155,25 @@ public class CreateController : EditorWindow
                     }
 
                 }
+                EditorUtility.DisplayDialog("Success", avatarName + "用のコントローラーを作成しました", "次へ");
 
+                //UIsetをアバター直下にセット
+                GameObject prefabUIset = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/UIset.prefab", typeof(GameObject)) as GameObject;
+                prefabUIset = Instantiate(prefabUIset);
+                prefabUIset.name = "UIset";
+                prefabUIset.transform.SetParent(avatarObject.transform);
 
+                //MAMergeAnimatorの設定
+                ModularAvatarMergeAnimator MAMergeAnimator = prefabUIset.GetComponent<ModularAvatarMergeAnimator>();
+                MAMergeAnimator.animator = animatorController;
+                MAMergeAnimator.deleteAttachedAnimator = true;
+                MAMergeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
+                MAMergeAnimator.matchAvatarWriteDefaults = false;
 
+                //MAParamatersの設定
+                ModularAvatarParameters MAMergeParameters = prefabUIset.GetComponent<ModularAvatarParameters>();
+                EditorUtility.DisplayDialog("Success", avatarName + "にUIsetをセットしました", "閉じる");
 
-
-
-                EditorUtility.DisplayDialog("Success", avatarName + "用のコントローラーを作成しました", "戻る");
 
             }
             //TODO エラー処理を細分化

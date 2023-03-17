@@ -73,15 +73,15 @@ namespace HakoTools
             stateSelectMiddle.writeDefaultValues = writeDefault;
             stateSelectMiddle.motion = animeSelectMiddle;
 
-            var stateCancel = SoundLayer.stateMachine.AddState("Cancle", new Vector3(600, 250, 0));
+            var stateCancel = SoundLayer.stateMachine.AddState("Cancel", new Vector3(600, 250, 0));
             stateCancel.writeDefaultValues = writeDefault;
             stateCancel.motion = animeCancel;
 
-            var stateCancelLong = SoundLayer.stateMachine.AddState("CancleLong", new Vector3(500, 400, 0));
+            var stateCancelLong = SoundLayer.stateMachine.AddState("CancelLong", new Vector3(500, 400, 0));
             stateCancelLong.writeDefaultValues = writeDefault;
             stateCancelLong.motion = animeCancelLong;
 
-            var stateCancelMiddle = SoundLayer.stateMachine.AddState("CancleMiddle", new Vector3(400, 550, 0));
+            var stateCancelMiddle = SoundLayer.stateMachine.AddState("CancelMiddle", new Vector3(400, 550, 0));
             stateCancelMiddle.writeDefaultValues = writeDefault;
             stateCancelMiddle.motion = animeCancelMiddle;
 
@@ -127,11 +127,11 @@ namespace HakoTools
 
 
             //EmptyToCancel
-            var transEmptyToCancle = stateEmpty.AddTransition(stateCancel);
-            transEmptyToCancle.exitTime = 0;
-            transEmptyToCancle.duration = 0;
-            transEmptyToCancle.hasExitTime = false;
-            transEmptyToCancle.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeClose");
+            var transEmptyToCancel = stateEmpty.AddTransition(stateCancel);
+            transEmptyToCancel.exitTime = 0;
+            transEmptyToCancel.duration = 0;
+            transEmptyToCancel.hasExitTime = false;
+            transEmptyToCancel.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeClose");
 
             //EmptyToCancelMiddle
             var transEmptyToCancelMiddle = stateEmpty.AddTransition(stateCancelMiddle);
@@ -141,11 +141,11 @@ namespace HakoTools
             transEmptyToCancelMiddle.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeMiddleClose");
 
             //EmptyToCancelLong
-            var transEmptyToCancleLong = stateEmpty.AddTransition(stateCancelLong);
-            transEmptyToCancleLong.exitTime = 0;
-            transEmptyToCancleLong.duration = 0;
-            transEmptyToCancleLong.hasExitTime = false;
-            transEmptyToCancleLong.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeLongClose");
+            var transEmptyToCancelLong = stateEmpty.AddTransition(stateCancelLong);
+            transEmptyToCancelLong.exitTime = 0;
+            transEmptyToCancelLong.duration = 0;
+            transEmptyToCancelLong.hasExitTime = false;
+            transEmptyToCancelLong.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeLongClose");
 
             //EmptyToSelect
             var transEmptyToSelect = stateEmpty.AddTransition(stateSelect);
