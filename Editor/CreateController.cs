@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 //ModularAvatar用
 using nadena.dev.modular_avatar.core;
 
+
 /// <summary>
 /// UIset用のアニメーターを、セットしたアバター用に新規作成します
 /// </summary>
@@ -172,7 +173,29 @@ public class CreateController : EditorWindow
 
                 //MAParamatersの設定
                 ModularAvatarParameters MAMergeParameters = prefabUIset.GetComponent<ModularAvatarParameters>();
+                Debug.Log(MAMergeParameters.parameters[0].nameOrPrefix);
+
+                //構造体なのでforeachは不可
+                ParameterConfig tempParameters = MAMergeParameters.parameters[0];
+                for (int i = 0; i < MAMergeParameters.parameters.Count; i++)
+                {
+                    if (MAMergeParameters.parameters[i].nameOrPrefix.Contains("Toggle"))
+                    {
+                        ParameterConfig tempParameter = MAMergeParameters.parameters[i];
+                        tempParameter.syncType = ParameterSyncType.Bool;
+                        MAMergeParameters.parameters[i] = tempParameter;
+                    }
+                    else if (MAMergeParameters.parameters[i].nameOrPrefix.Contains("Int"))
+                    {
+                        ParameterConfig tempParameter = MAMergeParameters.parameters[i];
+                        tempParameter.syncType = ParameterSyncType.Int;
+                        tempParameter.defaultValue = 1;
+                        MAMergeParameters.parameters[i] = tempParameter;
+                    }
+                }
+
                 EditorUtility.DisplayDialog("Success", avatarName + "にUIsetをセットしました", "閉じる");
+
 
 
             }
