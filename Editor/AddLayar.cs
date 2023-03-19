@@ -4,7 +4,7 @@ using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDKBase;
 
-namespace HakoTools
+namespace UIset.util
 {
     class AddLayer
     {

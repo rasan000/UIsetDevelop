@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace HakoTools
+namespace UIset.util
 {
     class ReadJson
     {
