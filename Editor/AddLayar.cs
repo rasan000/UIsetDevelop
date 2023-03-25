@@ -9,6 +9,8 @@ namespace UIset.util
     class AddLayer
     {
 
+
+
         /// <summary>
         /// CoolTime用のレイヤーを作成します
         /// </summary>
@@ -651,6 +653,8 @@ namespace UIset.util
         /// <param name="writeDefault"></param>
         public void CreateObjectLayerInt(AnimatorController FXController, string process, int count, bool writeDefault)
         {
+
+
             AnimatorControllerLayer toggleLayer = new AnimatorControllerLayer
             {
                 name = process + "Object" + count,

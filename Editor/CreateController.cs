@@ -21,16 +21,31 @@ public class CreateController : EditorWindow
 
 
     //コントローラーとアニメーションを置くフォルダ
-    private const string controllerFolderPath = "Assets/UIset/Animations";
+    private const string avatarSettingInfoPath = "Assets/UIset/AvatarSettingInfo";
+    //コピー用マテリアル
+    private const string currentMaterialFolder = "Assets/UIset/src/material/Material";
 
     //アバター
     private VRCAvatarDescriptor avatarDescriptor;
     private GameObject avatarObject;
-    public Vector2 Scroll = new Vector2(200, 200);
-
 
     //バグのもとなのでwriteDefaultはfalseで
     bool writeDefault = false;
+
+    //スクロール用
+    private Vector2 _scrollPosition = Vector2.zero;
+    //トグルウィンドウ用
+    private bool _toggleMainMenu = false;
+    private bool _toggleSub1Menu = false;
+    private bool _toggleSub2Menu = false;
+    private bool _toggleSub3Menu = false;
+
+    //アニメーション入れ替え用
+    private AnimatorController _animatorController;
+
+    //Mesh入れ替え用
+    private MeshRenderer _meshRenderer;
+
 
     // メニュー
     [MenuItem("UIset/Create Controller")]
@@ -52,6 +67,7 @@ public class CreateController : EditorWindow
         GUILayout.Label("設定したいアバターをセットしてください", EditorStyles.boldLabel);
         GUILayout.Space(20);
 
+
         //avatarがセットされたらavatarDisprictorを取得
         if (avatarObject != null)
         {
@@ -59,20 +75,11 @@ public class CreateController : EditorWindow
             //アバター名
             string avatarName = avatarDescriptor.gameObject.name;
             //コントローラー名(~~~UIsetアバター名で)
-            string controllerPath = controllerFolderPath + "/" + avatarName + "/UIset" + avatarName + ".controller";
+            string controllerPath = avatarSettingInfoPath + "/" + avatarName + "/UIset" + avatarName + ".controller";
 
             //コントローラー生成済みであればConfig画面へ
-            if (File.Exists(controllerPath))
+            if (File.Exists(controllerPath) && (avatarObject.transform.Find("UIset")))
             {
-                //UIsetがアバター直下にない場合は生成してセットする
-                if (!(avatarObject.transform.Find("UIset")))
-                {
-                    GameObject prefabUIset = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/UIset.prefab", typeof(GameObject)) as GameObject;
-                    prefabUIset = Instantiate(prefabUIset);
-                    prefabUIset.name = "UIset";
-                    prefabUIset.transform.SetParent(avatarObject.transform);
-                }
-
                 GUILayout.Label(avatarName + "用のファイルを読み込みました", EditorStyles.boldLabel);
                 GUILayout.Space(20);
                 GUILayout.Label("編集モード", EditorStyles.boldLabel);
@@ -81,66 +88,65 @@ public class CreateController : EditorWindow
                 AnimatorController animatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
                 if (animatorController == null) { return; }
 
-                EditorGUILayout.Space();
-
-                // スクロール可能な領域を作成
-                Vector2 scrollPostion = new Vector2();
-                scrollPostion = EditorGUILayout.BeginScrollView(scrollPostion, GUILayout.Width(400), GUILayout.Height(400));
-
+                EditorGUILayout.Space(10);
                 EditorGUILayout.LabelField("Layers", EditorStyles.boldLabel);
-                foreach (AnimatorControllerLayer layer in animatorController.layers)
+                //スクロールウィンドウ
+
+                //メインメニュー
+                Color originalContentColor = GUI.contentColor;
+                GUI.contentColor = Color.white;
+                _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+                EditorGUILayout.TextField("※アバター正面のメニューです。", EditorStyles.miniLabel);
+                _toggleMainMenu = EditorGUILayout.Foldout(_toggleMainMenu, "MainMenu");
+                GUI.contentColor = originalContentColor;
+                if (_toggleMainMenu)
                 {
-                    if (layer.name.Contains("Object"))
-                    {
-                        if ((!layer.name.Contains("Toggle")) && (!layer.name.Contains("Contact")) && (!layer.name.Contains("Int")))
-                        {
-                            EditorGUILayout.LabelField($"Layer Name: {layer.name}");
-                            // ステートマシン一覧を表示する
-                            EditorGUILayout.LabelField("State Machines", EditorStyles.boldLabel);
-                            foreach (ChildAnimatorStateMachine stateMachine in layer.stateMachine.stateMachines)
-                            {
-                                EditorGUILayout.LabelField($"State Machine Name: {stateMachine.stateMachine.name}");
-
-                                // ステート一覧を表示する
-                                EditorGUILayout.LabelField("States", EditorStyles.boldLabel);
-                                foreach (ChildAnimatorState state in stateMachine.stateMachine.states)
-                                {
-                                    EditorGUILayout.LabelField($"State Name: {state.state.name}");
-                                    Debug.Log(state);
-                                    // ステートに設定されているアニメーション情報を表示する
-                                    EditorGUILayout.LabelField("Animation Clip", EditorStyles.boldLabel);
-                                    if (state.state.motion is AnimationClip clip)
-                                    {
-                                        EditorGUILayout.ObjectField(clip, typeof(AnimationClip), false);
-                                    }
-                                }
-
-                            }
-                        }
-                    }
-                    else
-                    {
-                        continue;
-                    }
-
-
+                    ShowLayerAnimations(animatorController, "Main");
                 }
-                // スクロール可能な領域を終了
+                GUILayout.Space(20);
+
+                //サブメニュ－１
+                EditorGUILayout.TextField("※アバターから向かって上のメニューです。", EditorStyles.miniLabel);
+                GUI.contentColor = Color.red;
+                _toggleSub1Menu = EditorGUILayout.Foldout(_toggleSub1Menu, "Sub1Menu");
+                GUI.contentColor = originalContentColor;
+                if (_toggleSub1Menu)
+                {
+                    ShowLayerAnimations(animatorController, "Sub1");
+                }
+                GUILayout.Space(20);
+
+
+                //サブメニュ－２
+                EditorGUILayout.TextField("※アバターから向かって右のメニューです。", EditorStyles.miniLabel);
+                GUI.contentColor = Color.cyan;
+                _toggleSub2Menu = EditorGUILayout.Foldout(_toggleSub2Menu, "Sub2Menu:▶");
+                GUI.contentColor = originalContentColor;
+                if (_toggleSub2Menu)
+                {
+                    ShowLayerAnimations(animatorController, "Sub2");
+                }
+                GUILayout.Space(20);
+
+
+                //サブメニュ－３
+                EditorGUILayout.TextField("※アバターから向かって左のメニューです。", EditorStyles.miniLabel);
+                GUI.contentColor = Color.green;
+                _toggleSub3Menu = EditorGUILayout.Foldout(_toggleSub3Menu, "Sub3Menu:◀");
+                GUI.contentColor = originalContentColor;
+                if (_toggleSub3Menu)
+                {
+                    ShowLayerAnimations(animatorController, "Sub3");
+                }
+                GUILayout.Space(20);
                 EditorGUILayout.EndScrollView();
-
-                bool updateUIFXButton = GUILayout.Button("UpdateUIset");
-                GUILayout.BeginHorizontal();
-                GUILayout.EndHorizontal();
-                if (updateUIFXButton)
-                {
-                    EditorUtility.DisplayDialog("Success", "設定内容をUIsetに反映しました", "戻る");
-                    return;
-                }
-
-                return;
+                GUILayout.Space(20);
+                EditorGUILayout.EndVertical();
             }
 
 
+
+            //ここからコントローラー生成
             //ファイルがない場合はコントローラー生成ボタンを表示
             GUILayout.Label(avatarName + "用のファイルを作成します。CreateControllerボタンを押してください", EditorStyles.boldLabel);
             bool createUIFXButton = GUILayout.Button("CreateController");
@@ -161,11 +167,22 @@ public class CreateController : EditorWindow
                 try
                 {
                     //アバター用のフォルダがなければ作成する
-                    if (!Directory.Exists(controllerFolderPath + "/" + avatarName))
+                    if (!Directory.Exists(avatarSettingInfoPath + "/" + avatarName))
                     {
-                        Directory.CreateDirectory(controllerFolderPath + "/" + avatarName);
-                        EditorUtility.DisplayDialog("Success", avatarName + "用のフォルダを作成しました", "戻る");
+                        Directory.CreateDirectory(avatarSettingInfoPath + "/" + avatarName);
+
                     }
+
+                    string destinationPath = avatarSettingInfoPath + "/" + avatarName + "/Material";
+                    //アバター用にマテリアルをコピペする
+                    if (!Directory.Exists(destinationPath))
+                    {
+                        Directory.CreateDirectory(destinationPath);
+                        CopyDirectoryRecursive(currentMaterialFolder, destinationPath);
+                        // アセットデータベースを更新して、変更を反映
+                        AssetDatabase.Refresh();
+                    }
+
 
                     //アバター用のコントローラー作成
                     AnimatorController animatorController = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
@@ -188,9 +205,7 @@ public class CreateController : EditorWindow
                     stateNormarized.motion = animeNormarized;
                     animatorController.AddLayer(NormarizedLayer);
 
-
-
-                    //効果音用
+                    //効果音レイヤー
                     ad.CreateSoundLayer(animatorController, writeDefault);
 
                     //コントローラー作成
@@ -201,6 +216,7 @@ public class CreateController : EditorWindow
                         ad.CreateContactLayer(animatorController, property, writeDefault);
                         ad.CreateToggleLayer(animatorController, property, writeDefault);
                     }
+
                     foreach (string menuList in jsonObj["UIsetInfo"]["MenuList"])
                     {
                         animatorController.AddParameter(menuList + "Contact", AnimatorControllerParameterType.Bool);
@@ -208,6 +224,7 @@ public class CreateController : EditorWindow
                         ad.CreateContactLayer(animatorController, menuList, writeDefault);
                         ad.CreateToggleLayer(animatorController, menuList, writeDefault);
                     }
+
                     foreach (JObject layarInfo in jsonObj["UIsetInfo"]["LayerList"])
                     {
                         string layarName = (string)layarInfo["LayerName"];
@@ -238,13 +255,37 @@ public class CreateController : EditorWindow
                         }
 
                     }
-                    EditorUtility.DisplayDialog("Success", avatarName + "用のコントローラーを作成しました", "次へ");
+                    // EditorUtility.DisplayDialog("Success", avatarName + "用のコントローラーを作成しました", "次へ");
+
+
 
                     //UIsetをアバター直下にセット
                     GameObject prefabUIset = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/UIset.prefab", typeof(GameObject)) as GameObject;
                     prefabUIset = Instantiate(prefabUIset);
                     prefabUIset.name = "UIset";
                     prefabUIset.transform.SetParent(avatarObject.transform);
+
+                    //UIsetの各ボタンをアバター専用のマテリアルに変更
+                    foreach (string property in jsonObj["UIsetButtonList"])
+                    {
+                        Debug.Log(property + "試行中");
+                        GameObject searchObject = avatarObject.transform.Find("UIset").gameObject;
+                        GameObject mesh = FindGameObjectByName(searchObject, property + "Mesh");
+                        Material setMaterial = AssetDatabase.LoadAssetAtPath(destinationPath + "/" + property + ".mat", typeof(Material)) as Material;
+                        Debug.Log(destinationPath + property + ".mat");
+                        Debug.Log(setMaterial);
+                        if (mesh != null)
+                        {
+                            mesh.GetComponent<SkinnedMeshRenderer>().material = setMaterial;
+                        }
+                        else
+                        {
+                            Debug.Log(property + "Meshは見つかりませんでした");
+                        }
+
+
+                    }
+
 
                     //MAMergeAnimatorの設定
                     ModularAvatarMergeAnimator MAMergeAnimator = prefabUIset.GetComponent<ModularAvatarMergeAnimator>();
@@ -274,31 +315,171 @@ public class CreateController : EditorWindow
                             MAMergeParameters.parameters[i] = tempParameter;
                         }
                     }
-
                     EditorUtility.DisplayDialog("Success", avatarName + "にUIsetをセットしました", "閉じる");
-
-
-
                 }
                 //TODO エラー処理を細分化
                 catch (Exception e)
                 {
                     Debug.Log(e);
-                    EditorUtility.DisplayDialog("Error", "エラーが発生しました。お問合わせいただき、解決可能であれば早めに修正します。", "戻る");
+                    EditorUtility.DisplayDialog("Error", "エラーが発生しました。ご連絡頂ければ可能な限り対応致します", "戻る");
                 }
-
-
-
-
             }
+        }
+    }
 
 
+
+    /// <summary>
+    ///     アニメーションコントローラーにセットされているアニメクリップを表示します
+    /// </summary>
+    /// <param name="animatorController"></param>
+    /// <param name="layerCategory"></param>
+    private void ShowLayerAnimations(AnimatorController animatorController, string layerCategory)
+    {
+        AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
+
+        EditorGUI.indentLevel++;
+        foreach (AnimatorControllerLayer layer in animatorController.layers)
+        {
+            //オブジェクト操作レイヤーのみを表示
+            if (layer.name.Contains("Object") && layer.name.Contains(layerCategory))
+            {
+                if ((!layer.name.Contains("Toggle")) && (!layer.name.Contains("Contact")) && (!layer.name.Contains("Int")))
+                {
+                    //レイヤー名
+
+                    EditorGUILayout.LabelField(layer.name, EditorStyles.boldLabel);
+                    // EditorGUILayout.LabelField("デフォルトONにするか", EditorStyles.boldLabel);
+                    // EditorGUILayout.LabelField("自分だけしか触れないようにするか", EditorStyles.boldLabel);
+                    // EditorGUILayout.LabelField("simpleObjectToggle", EditorStyles.boldLabel);
+
+                    // ステートマシン一覧を表示する
+                    foreach (ChildAnimatorState state in layer.stateMachine.states)
+                    {
+                        if (state.state.name.Contains("ButtonOFF") || state.state.name.Contains("ButtonON"))
+                        {
+
+                            EditorGUILayout.BeginHorizontal();
+                            //buttonONはONで赤、buttonOFFはOFFで青表示
+                            if (state.state.name.Contains("ON"))
+                            {
+                                GUIStyle coloredLabel = new GUIStyle(EditorStyles.label);
+                                coloredLabel.normal.textColor = Color.red;
+                                EditorGUILayout.LabelField("ON", coloredLabel, GUILayout.Width(200));
+                            }
+                            else
+                            {
+                                GUIStyle coloredLabel = new GUIStyle(EditorStyles.label);
+                                coloredLabel.normal.textColor = Color.cyan;
+                                EditorGUILayout.LabelField("OFF", coloredLabel, GUILayout.Width(200));
+                            }
+
+                            AnimationClip oldClip = state.state.motion as AnimationClip;
+                            AnimationClip newClip = (AnimationClip)EditorGUILayout.ObjectField("", oldClip, typeof(AnimationClip), false, GUILayout.Width(200));
+                            if (newClip != oldClip)
+                            {
+                                state.state.motion = newClip;
+                            }
+                            if (newClip == null)
+                            {
+                                state.state.motion = animeEmpty;
+                            }
+                            EditorGUILayout.EndHorizontal();
+                        }
+                    }
+
+                    //スペースを開ける
+                    EditorGUILayout.Space(10);
+                }
+            }
+        }
+        EditorGUI.indentLevel--;
+    }
+
+    /// <summary>
+    /// フォルダーを内容ごとコピーします
+    /// </summary>
+    /// <param name="sourcePath"></param>
+    /// <param name="destinationPath"></param>
+    private static void CopyDirectoryRecursive(string sourcePath, string destinationPath)
+    {
+        // コピー先ディレクトリが存在しない場合は、作成します。
+        if (!Directory.Exists(destinationPath))
+        {
+            Directory.CreateDirectory(destinationPath);
         }
 
+        // ディレクトリ内のファイルをすべてコピーします。
+        foreach (string filePath in Directory.GetFiles(sourcePath))
+        {
+            string destinationFilePath = Path.Combine(destinationPath, Path.GetFileName(filePath));
+            File.Copy(filePath, destinationFilePath, true);
+        }
 
+        // サブディレクトリを再帰的にコピーします。
+        foreach (string subDirectory in Directory.GetDirectories(sourcePath))
+        {
+            string destinationSubDirectory = Path.Combine(destinationPath, Path.GetFileName(subDirectory));
+            CopyDirectoryRecursive(subDirectory, destinationSubDirectory);
+        }
+    }
 
+    /// <summary>
+    /// Meshを探索してウィンドウ上に表示します
+    /// </summary>
+    /// <param name="parent"></param>
+    /// <returns></returns>
+    private MeshRenderer FindMeshRendererInChildren(Transform parent, string meshName)
+    {
+        MeshRenderer result = null;
+        foreach (Transform child in parent)
+        {
+            if (child.name == meshName)
+            {
+                result = child.GetComponent<MeshRenderer>();
+                if (result != null)
+                {
+                    return result;
+                }
+            }
 
+            result = FindMeshRendererInChildren(child, meshName);
+            if (result != null)
+            {
+                return result;
+            }
+        }
 
+        return null;
+    }
+
+    /// <summary>
+    /// オブジェクトを全検索する
+    /// </summary>
+    /// <param name="parent"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public GameObject FindGameObjectByName(GameObject parent, string name)
+    {
+        Transform parentTransform = parent.transform;
+
+        // 子オブジェクトの中から名前が一致するオブジェクトを検索します。
+        foreach (Transform childTransform in parentTransform)
+        {
+            if (childTransform.name == name)
+            {
+                return childTransform.gameObject;
+            }
+
+            // 孫オブジェクトも含めて検索します。
+            GameObject found = FindGameObjectByName(childTransform.gameObject, name);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
     }
 }
 
