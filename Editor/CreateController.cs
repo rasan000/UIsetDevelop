@@ -8,7 +8,8 @@ using UIset.util;
 using Newtonsoft.Json.Linq;
 //ModularAvatar用
 using nadena.dev.modular_avatar.core;
-
+using System.Collections.Generic;
+using VRC.SDK3.Dynamics.Contact.Components;
 
 /// <summary>
 /// UIset用のアニメーターを、セットしたアバター用に新規作成します
@@ -18,7 +19,6 @@ using nadena.dev.modular_avatar.core;
 [UnityEditor.InitializeOnLoad]
 public class CreateController : EditorWindow
 {
-
 
     //コントローラーとアニメーションを置くフォルダ
     private const string avatarSettingInfoPath = "Assets/UIset/AvatarSettingInfo";
@@ -46,15 +46,17 @@ public class CreateController : EditorWindow
     //Mesh入れ替え用
     private MeshRenderer _meshRenderer;
 
+    //defaultON用
+    private List<bool> _checkboxDefaultON = new List<bool>();
 
     // メニュー
     [MenuItem("UIset/Create Controller")]
-
     private static void ShowWindow()
     {
-        CreateController window = GetWindowWithRect<CreateController>(new Rect(0, 0, 480, 600));
+        CreateController window = GetWindowWithRect<CreateController>(new Rect(0, 0, 480, 800));
         window.Show();
     }
+
 
     //UIFXのセットアップ
     private void OnGUI()
@@ -77,6 +79,7 @@ public class CreateController : EditorWindow
             //コントローラー名(~~~UIsetアバター名で)
             string controllerPath = avatarSettingInfoPath + "/" + avatarName + "/UIset" + avatarName + ".controller";
 
+
             //コントローラー生成済みであればConfig画面へ
             if (File.Exists(controllerPath) && (avatarObject.transform.Find("UIset")))
             {
@@ -90,8 +93,8 @@ public class CreateController : EditorWindow
 
                 EditorGUILayout.Space(10);
                 EditorGUILayout.LabelField("Layers", EditorStyles.boldLabel);
-                //スクロールウィンドウ
 
+                //スクロールウィンドウ
                 //メインメニュー
                 Color originalContentColor = GUI.contentColor;
                 GUI.contentColor = Color.white;
@@ -101,7 +104,7 @@ public class CreateController : EditorWindow
                 GUI.contentColor = originalContentColor;
                 if (_toggleMainMenu)
                 {
-                    ShowLayerAnimations(animatorController, "Main");
+                    ShowLayerAnimations(animatorController, "Main", avatarObject);
                 }
                 GUILayout.Space(20);
 
@@ -112,19 +115,83 @@ public class CreateController : EditorWindow
                 GUI.contentColor = originalContentColor;
                 if (_toggleSub1Menu)
                 {
-                    ShowLayerAnimations(animatorController, "Sub1");
+                    ShowLayerAnimations(animatorController, "Sub1", avatarObject);
                 }
                 GUILayout.Space(20);
 
 
                 //サブメニュ－２
-                EditorGUILayout.TextField("※アバターから向かって右のメニューです。", EditorStyles.miniLabel);
+                EditorGUILayout.TextField("※アバターから向かって右のメニューです。このレイヤーはいずれか一つだけ選択されます", EditorStyles.miniLabel);
                 GUI.contentColor = Color.cyan;
-                _toggleSub2Menu = EditorGUILayout.Foldout(_toggleSub2Menu, "Sub2Menu:▶");
+                _toggleSub2Menu = EditorGUILayout.Foldout(_toggleSub2Menu, "Sub2Menu");
                 GUI.contentColor = originalContentColor;
+                //defaultIntの設定
+                ModularAvatarParameters MAMergeIntParameters = avatarObject.transform.Find("UIset").GetComponent<ModularAvatarParameters>();
+                ParameterConfig tempParameters = MAMergeIntParameters.parameters[0];
+                for (int i = 0; i < MAMergeIntParameters.parameters.Count; i++)
+                {
+                    if (MAMergeIntParameters.parameters[i].nameOrPrefix.Equals("Sub2ObjectInt"))
+                    {
+                        {
+                            //初期選択値
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label("初期選択ボタン", GUILayout.Width(150));
+                            int tempIntValue = EditorGUILayout.IntField((int)MAMergeIntParameters.parameters[i].defaultValue, GUILayout.Width(100));
+                            GUILayout.EndHorizontal();
+                            if (tempIntValue <= 6 && tempIntValue >= 0)
+                            {
+                                if (tempIntValue != (int)MAMergeIntParameters.parameters[i].defaultValue)
+                                {
+                                    ParameterConfig tempParameterConfig = MAMergeIntParameters.parameters[i];
+                                    tempParameterConfig.syncType = ParameterSyncType.Int;
+                                    tempParameterConfig.defaultValue = tempIntValue;
+                                    MAMergeIntParameters.parameters[i] = tempParameterConfig;
+                                }
+                            }
+                            else
+                            {
+                                //アラート表示
+                                EditorUtility.DisplayDialog("Error", "0～6の整数を入力してください", "戻る");
+                                tempIntValue = 1;
+                            }
+
+                            //保存するか
+                            if (MAMergeIntParameters.parameters[i].saved)
+                            {
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label("アバター変更時にリセットさせない", GUILayout.Width(200));
+                                bool tempIntSavedValue = GUILayout.Toggle(true, "");
+                                GUILayout.EndHorizontal();
+                                if (!tempIntSavedValue)
+                                {
+                                    ParameterConfig tempParameterConfig = MAMergeIntParameters.parameters[i];
+                                    tempParameterConfig.saved = false;
+                                    MAMergeIntParameters.parameters[i] = tempParameterConfig;
+                                }
+                            }
+                            else
+                            {
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label("アバター変更時にリセットさせない", GUILayout.Width(200));
+                                bool tempIntSavedValue = GUILayout.Toggle(false, "");
+                                GUILayout.EndHorizontal();
+                                if (tempIntSavedValue)
+                                {
+                                    ParameterConfig tempParameterConfig = MAMergeIntParameters.parameters[i];
+                                    tempParameterConfig.saved = true;
+                                    MAMergeIntParameters.parameters[i] = tempParameterConfig;
+                                }
+                            }
+
+
+                        }
+                    }
+
+                }
+                //showLayerAnimations
                 if (_toggleSub2Menu)
                 {
-                    ShowLayerAnimations(animatorController, "Sub2");
+                    ShowLayerAnimations(animatorController, "Sub2", avatarObject);
                 }
                 GUILayout.Space(20);
 
@@ -132,11 +199,11 @@ public class CreateController : EditorWindow
                 //サブメニュ－３
                 EditorGUILayout.TextField("※アバターから向かって左のメニューです。", EditorStyles.miniLabel);
                 GUI.contentColor = Color.green;
-                _toggleSub3Menu = EditorGUILayout.Foldout(_toggleSub3Menu, "Sub3Menu:◀");
+                _toggleSub3Menu = EditorGUILayout.Foldout(_toggleSub3Menu, "Sub3Menu");
                 GUI.contentColor = originalContentColor;
                 if (_toggleSub3Menu)
                 {
-                    ShowLayerAnimations(animatorController, "Sub3");
+                    ShowLayerAnimations(animatorController, "Sub3", avatarObject);
                 }
                 GUILayout.Space(20);
                 EditorGUILayout.EndScrollView();
@@ -191,6 +258,7 @@ public class CreateController : EditorWindow
                     string json = ReadJson.Read("Assets/UIset/Editor/UIsetInfo.json");
                     JObject jsonObj = JObject.Parse(json);
                     AddLayer ad = new AddLayer();
+
 
                     //初期表示レイヤー
                     AnimationClip animeNormarized = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Normarized.anim", typeof(AnimationClip)) as AnimationClip;
@@ -255,7 +323,7 @@ public class CreateController : EditorWindow
                         }
 
                     }
-                    // EditorUtility.DisplayDialog("Success", avatarName + "用のコントローラーを作成しました", "次へ");
+
 
 
 
@@ -268,12 +336,9 @@ public class CreateController : EditorWindow
                     //UIsetの各ボタンをアバター専用のマテリアルに変更
                     foreach (string property in jsonObj["UIsetButtonList"])
                     {
-                        Debug.Log(property + "試行中");
                         GameObject searchObject = avatarObject.transform.Find("UIset").gameObject;
                         GameObject mesh = FindGameObjectByName(searchObject, property + "Mesh");
                         Material setMaterial = AssetDatabase.LoadAssetAtPath(destinationPath + "/" + property + ".mat", typeof(Material)) as Material;
-                        Debug.Log(destinationPath + property + ".mat");
-                        Debug.Log(setMaterial);
                         if (mesh != null)
                         {
                             mesh.GetComponent<SkinnedMeshRenderer>().material = setMaterial;
@@ -293,10 +358,8 @@ public class CreateController : EditorWindow
                     MAMergeAnimator.deleteAttachedAnimator = true;
                     MAMergeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
                     MAMergeAnimator.matchAvatarWriteDefaults = false;
-
                     //MAParamatersの設定
                     ModularAvatarParameters MAMergeParameters = prefabUIset.GetComponent<ModularAvatarParameters>();
-                    Debug.Log(MAMergeParameters.parameters[0].nameOrPrefix);
                     //構造体なのでforeachは不可
                     ParameterConfig tempParameters = MAMergeParameters.parameters[0];
                     for (int i = 0; i < MAMergeParameters.parameters.Count; i++)
@@ -334,7 +397,7 @@ public class CreateController : EditorWindow
     /// </summary>
     /// <param name="animatorController"></param>
     /// <param name="layerCategory"></param>
-    private void ShowLayerAnimations(AnimatorController animatorController, string layerCategory)
+    private void ShowLayerAnimations(AnimatorController animatorController, string layerCategory, GameObject avatarObject)
     {
         AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
 
@@ -346,12 +409,124 @@ public class CreateController : EditorWindow
             {
                 if ((!layer.name.Contains("Toggle")) && (!layer.name.Contains("Contact")) && (!layer.name.Contains("Int")))
                 {
-                    //レイヤー名
+                    //カテゴリ名
+                    GameObject searchObject = avatarObject.transform.Find("UIset").gameObject;
+                    GameObject mesh = FindGameObjectByName(searchObject, layer.name + "Mesh");
+                    if (mesh != null)
+                    {
+                        //editorにボタンとして表示して、クリックしたらsceneを参照する
+                        if (GUILayout.Button(layer.name, GUILayout.Width(200)))
+                        {
+                            Selection.activeGameObject = mesh;
+                        }
+                    }
 
-                    EditorGUILayout.LabelField(layer.name, EditorStyles.boldLabel);
-                    // EditorGUILayout.LabelField("デフォルトONにするか", EditorStyles.boldLabel);
-                    // EditorGUILayout.LabelField("自分だけしか触れないようにするか", EditorStyles.boldLabel);
-                    // EditorGUILayout.LabelField("simpleObjectToggle", EditorStyles.boldLabel);
+                    //デフォルトONチェックボックス
+
+                    ModularAvatarParameters MAMergeParameters = searchObject.GetComponent<ModularAvatarParameters>();
+                    ParameterConfig tempParameters = MAMergeParameters.parameters[0];
+                    for (int i = 0; i < MAMergeParameters.parameters.Count; i++)
+                    {
+                        if (MAMergeParameters.parameters[i].nameOrPrefix.Equals(layer.name + "Toggle"))
+                        {
+                            if (MAMergeParameters.parameters[i].defaultValue == 1.0f)
+                            {
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label("デフォルトON", GUILayout.Width(150));
+                                bool tempParameter = GUILayout.Toggle(true, "");
+                                GUILayout.EndHorizontal();
+                                if (!tempParameter)
+                                {
+                                    ParameterConfig tempParameterConfig = MAMergeParameters.parameters[i];
+                                    tempParameterConfig.syncType = ParameterSyncType.Bool;
+                                    tempParameterConfig.defaultValue = 0;
+                                    MAMergeParameters.parameters[i] = tempParameterConfig;
+                                }
+                            }
+                            else
+                            {
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label("デフォルトON", GUILayout.Width(150));
+                                bool tempParameter = GUILayout.Toggle(false, "");
+                                GUILayout.EndHorizontal();
+                                if (tempParameter)
+                                {
+                                    ParameterConfig tempParameterConfig = MAMergeParameters.parameters[i];
+                                    tempParameterConfig.syncType = ParameterSyncType.Bool;
+                                    tempParameterConfig.defaultValue = 1.0f;
+                                    MAMergeParameters.parameters[i] = tempParameterConfig;
+                                }
+                            }
+                        }
+
+                    }
+
+
+                    //他のユーザーからの操作を許可するかチェックボックス
+                    GameObject tempReceiverObject = FindGameObjectByName(searchObject, layer.name + "Receiver");
+                    if (tempReceiverObject != null)
+                    {
+                        VRCContactReceiver contactReceiver = tempReceiverObject.GetComponent<VRCContactReceiver>();
+                        if (contactReceiver.allowOthers == true)
+                        {
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label("他のユーザーからの操作を許可する", GUILayout.Width(150));
+                            bool tempParameter = GUILayout.Toggle(true, "");
+                            GUILayout.EndHorizontal();
+                            if (!tempParameter)
+                            {
+                                contactReceiver.allowOthers = false;
+                            }
+                        }
+                        else
+                        {
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label("他のユーザーからの操作を許可する", GUILayout.Width(150));
+                            bool tempParameter = GUILayout.Toggle(false, "");
+                            GUILayout.EndHorizontal();
+                            if (tempParameter)
+                            {
+                                contactReceiver.allowOthers = true;
+                            }
+                        }
+                    }
+
+                    //アバターチェンジ時に値を保持するか
+                    for (int i = 0; i < MAMergeParameters.parameters.Count; i++)
+                    {
+                        if (MAMergeParameters.parameters[i].nameOrPrefix.Equals(layer.name + "Toggle"))
+                        {
+                            if (MAMergeParameters.parameters[i].saved)
+                            {
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label("アバター変更時にリセットさせない", GUILayout.Width(200));
+                                bool tempParameter = GUILayout.Toggle(true, "");
+                                GUILayout.EndHorizontal();
+                                if (!tempParameter)
+                                {
+                                    ParameterConfig tempParameterConfig = MAMergeParameters.parameters[i];
+                                    tempParameterConfig.saved = false;
+                                    MAMergeParameters.parameters[i] = tempParameterConfig;
+                                }
+                            }
+                            else
+                            {
+                                GUILayout.BeginHorizontal();
+                                GUILayout.Label("アバター変更時にリセットさせない", GUILayout.Width(200));
+                                bool tempParameter = GUILayout.Toggle(false, "");
+                                GUILayout.EndHorizontal();
+                                if (tempParameter)
+                                {
+                                    ParameterConfig tempParameterConfig = MAMergeParameters.parameters[i];
+                                    tempParameterConfig.saved = true;
+                                    MAMergeParameters.parameters[i] = tempParameterConfig;
+                                }
+                            }
+                        }
+
+                    }
+
+
 
                     // ステートマシン一覧を表示する
                     foreach (ChildAnimatorState state in layer.stateMachine.states)
@@ -388,6 +563,8 @@ public class CreateController : EditorWindow
                         }
                     }
 
+                    //write horizontal line
+                    EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
                     //スペースを開ける
                     EditorGUILayout.Space(10);
                 }
