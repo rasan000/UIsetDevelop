@@ -43,9 +43,6 @@ public class CreateController : EditorWindow
     //アニメーション入れ替え用
     private AnimatorController _animatorController;
 
-    //Mesh入れ替え用
-    private MeshRenderer _meshRenderer;
-
     //defaultON用
     private List<bool> _checkboxDefaultON = new List<bool>();
 
@@ -86,13 +83,17 @@ public class CreateController : EditorWindow
                 GUILayout.Label(avatarName + "用のファイルを読み込みました", EditorStyles.boldLabel);
                 GUILayout.Space(20);
                 GUILayout.Label("編集モード", EditorStyles.boldLabel);
+                GUILayout.Label("以下の手順に沿って操作を行ってください", EditorStyles.boldLabel);
+
+
+                EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
 
                 //アバター用のコントローラー取得
                 AnimatorController animatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
                 if (animatorController == null) { return; }
 
                 EditorGUILayout.Space(10);
-                EditorGUILayout.LabelField("Layers", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("1.ボタンに登録したいアニメを設定してください", EditorStyles.boldLabel);
 
                 //スクロールウィンドウ
                 //メインメニュー
@@ -104,7 +105,7 @@ public class CreateController : EditorWindow
                 GUI.contentColor = originalContentColor;
                 if (_toggleMainMenu)
                 {
-                    ShowLayerAnimations(animatorController, "Main", avatarObject);
+                    ShowLayerAnimations(animatorController, "Main", avatarName);
                 }
                 GUILayout.Space(20);
 
@@ -115,7 +116,7 @@ public class CreateController : EditorWindow
                 GUI.contentColor = originalContentColor;
                 if (_toggleSub1Menu)
                 {
-                    ShowLayerAnimations(animatorController, "Sub1", avatarObject);
+                    ShowLayerAnimations(animatorController, "Sub1", avatarName);
                 }
                 GUILayout.Space(20);
 
@@ -191,7 +192,7 @@ public class CreateController : EditorWindow
                 //showLayerAnimations
                 if (_toggleSub2Menu)
                 {
-                    ShowLayerAnimations(animatorController, "Sub2", avatarObject);
+                    ShowLayerAnimations(animatorController, "Sub2", avatarName);
                 }
                 GUILayout.Space(20);
 
@@ -203,12 +204,56 @@ public class CreateController : EditorWindow
                 GUI.contentColor = originalContentColor;
                 if (_toggleSub3Menu)
                 {
-                    ShowLayerAnimations(animatorController, "Sub3", avatarObject);
+                    ShowLayerAnimations(animatorController, "Sub3", avatarName);
                 }
-                GUILayout.Space(20);
                 EditorGUILayout.EndScrollView();
-                GUILayout.Space(20);
+
+                EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("2.以下のボタンを押してからメニューの位置を調整してください", EditorStyles.boldLabel);
+                GameObject menuPointObject = FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "MenuPoint--(メニューの位置が調整できます)--");
+                if (GUILayout.Button("メニューの位置を調整する", GUILayout.Width(200)))
+                {
+                    Selection.activeGameObject = menuPointObject;
+                }
+
+                EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("3.以下のボタンを押してから指輪の位置を調整してください", EditorStyles.boldLabel);
+                GameObject ringPointObject = FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "RingPoint--(指輪の場所が調整できます)--");
+                if (GUILayout.Button("指輪の位置を調整する", GUILayout.Width(200)))
+                {
+                    Selection.activeGameObject = ringPointObject;
+                }
+                EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("4.指輪の大きさが合わない時は以下のボタンを押してからscaleの値を調整してください", EditorStyles.boldLabel);
+                GameObject ringObject = FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "指輪");
+                if (GUILayout.Button("指輪の大きさを調整する", GUILayout.Width(200)))
+                {
+                    Selection.activeGameObject = ringObject;
+                }
+                EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("5.最後に以下のボタンを押して設定を完了してください", EditorStyles.boldLabel);
+                GameObject UIsetObject = avatarObject.transform.Find("UIset").gameObject;
+                GameObject UIObject = FindGameObjectByName(UIsetObject, "UI");
+                if (GUILayout.Button("UIsetの設定を完了する", GUILayout.Width(200)))
+                {
+                    UIObject.SetActive(false);
+                    UIsetObject.SetActive(true);
+                    ringObject.SetActive(true);
+
+                }
+                if (GUILayout.Button("再設定する", GUILayout.Width(200)))
+                {
+
+                    UIObject.SetActive(true);
+                    UIsetObject.SetActive(true);
+                    ringObject.SetActive(true);
+                }
                 EditorGUILayout.EndVertical();
+
+
+
+
+
             }
 
 
@@ -397,7 +442,7 @@ public class CreateController : EditorWindow
     /// </summary>
     /// <param name="animatorController"></param>
     /// <param name="layerCategory"></param>
-    private void ShowLayerAnimations(AnimatorController animatorController, string layerCategory, GameObject avatarObject)
+    private void ShowLayerAnimations(AnimatorController animatorController, string layerCategory, string avatarName)
     {
         AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
 
@@ -523,7 +568,6 @@ public class CreateController : EditorWindow
                                 }
                             }
                         }
-
                     }
 
 
@@ -562,6 +606,27 @@ public class CreateController : EditorWindow
                             EditorGUILayout.EndHorizontal();
                         }
                     }
+
+                    //マテリアルに設定されているテクスチャを表示するEditorGUILayout.EndVertical();
+                    Material tempMaterial = AssetDatabase.LoadAssetAtPath("Assets/UIset/AvatarSettingInfo/" + avatarName + "/Material/" + layer.name + ".mat", typeof(Material)) as Material;
+                    if (tempMaterial != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("テクスチャ", GUILayout.Width(200));
+                        Texture texture = tempMaterial.mainTexture;
+                        texture = (Texture)EditorGUILayout.ObjectField(texture, typeof(Texture), false, GUILayout.Width(128), GUILayout.Height(128));
+                        EditorGUILayout.EndHorizontal();
+                        if (tempMaterial != null && texture != tempMaterial.mainTexture)
+                        {
+                            tempMaterial.mainTexture = texture;
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("マテリアルが見つかりませんでした");
+                    }
+
+
 
                     //write horizontal line
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
