@@ -172,6 +172,7 @@ namespace UIset.util
 
             //CancelToALLON
             var transCancelToALLON = stateCancel.AddTransition(stateALLON);
+            transCancelToALLON.hasExitTime = true;
             transCancelToALLON.exitTime = 1;
             transCancelToALLON.hasFixedDuration = true;
             transCancelToALLON.duration = 0;
@@ -179,6 +180,7 @@ namespace UIset.util
 
             //CancelMiddleToALLON
             var transCancelMiddleToALLON = stateCancelMiddle.AddTransition(stateALLON);
+            transCancelMiddleToALLON.hasExitTime = true;
             transCancelMiddleToALLON.exitTime = 1;
             transCancelMiddleToALLON.hasFixedDuration = true;
             transCancelMiddleToALLON.duration = 0;
@@ -186,6 +188,7 @@ namespace UIset.util
 
             //CancelLongToALLON
             var transCancelLongToALLON = stateCancelLong.AddTransition(stateALLON);
+            transCancelLongToALLON.hasExitTime = true;
             transCancelLongToALLON.exitTime = 1;
             transCancelLongToALLON.hasFixedDuration = true;
             transCancelLongToALLON.duration = 0;
@@ -193,6 +196,7 @@ namespace UIset.util
 
             //SelectToALLON
             var transSelectToALLON = stateSelect.AddTransition(stateALLON);
+            transSelectToALLON.hasExitTime = true;
             transSelectToALLON.exitTime = 1;
             transSelectToALLON.hasFixedDuration = true;
             transSelectToALLON.duration = 0;
@@ -200,6 +204,7 @@ namespace UIset.util
 
             //SelectMiddleToALLON
             var transSelectMiddleToALLON = stateSelectMiddle.AddTransition(stateALLON);
+            transSelectMiddleToALLON.hasExitTime = true;
             transSelectMiddleToALLON.exitTime = 1;
             transSelectMiddleToALLON.hasFixedDuration = true;
             transSelectMiddleToALLON.duration = 0;
@@ -207,6 +212,7 @@ namespace UIset.util
 
             //SelectLongToALLON
             var transSelectLongToALLON = stateSelectLong.AddTransition(stateALLON);
+            transSelectLongToALLON.hasExitTime = true;
             transSelectLongToALLON.exitTime = 1;
             transSelectLongToALLON.hasFixedDuration = true;
             transSelectLongToALLON.duration = 0;
@@ -214,7 +220,8 @@ namespace UIset.util
 
             //ALLONtoEmpty
             var transALLONToEmpty = stateALLON.AddTransition(stateEmpty);
-            transALLONToEmpty.exitTime = 1;
+            transALLONToEmpty.hasExitTime = true;
+            transALLONToEmpty.exitTime = 0.1f;
             transALLONToEmpty.hasFixedDuration = true;
             transALLONToEmpty.duration = 0;
             transALLONToEmpty.offset = 0;
@@ -250,11 +257,11 @@ namespace UIset.util
             stateEmpty.motion = animeEmpty;
             stateEmpty.writeDefaultValues = writeDefault;
             //アニメーションステート[1]：contactON　
-            var stateContactON = contactLayer.stateMachine.AddState("contactON", new Vector3(550, 240, 0));
+            var stateContactON = contactLayer.stateMachine.AddState("contactON", new Vector3(550, 0, 0));
             stateContactON.motion = animeEmpty;
             stateContactON.writeDefaultValues = writeDefault;
             //アニメーションステート[2]：contactOFF　
-            var stateContactOFF = contactLayer.stateMachine.AddState("contactOFF", new Vector3(550, 0, 0));
+            var stateContactOFF = contactLayer.stateMachine.AddState("contactOFF", new Vector3(550, 240, 0));
             stateContactOFF.motion = animeEmpty;
             stateContactOFF.writeDefaultValues = writeDefault;
 
@@ -265,15 +272,38 @@ namespace UIset.util
             {
                 name = process + "Toggle",
                 type = VRC_AvatarParameterDriver.ChangeType.Set,
-                value = 0
-            });
-            driverContactON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
-            {
-                name = "CoolTimeClose",
-                type = VRC_AvatarParameterDriver.ChangeType.Set,
                 value = 1f
             });
             driverContactON.localOnly = true;
+            if (process == "MainMenu")
+            {
+                driverContactON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+                {
+                    name = "CoolTimeLongOpen",
+                    type = VRC_AvatarParameterDriver.ChangeType.Set,
+                    value = 1f
+                });
+            }
+            else if (process == "SubMenu1" || process == "SubMenu2" || process == "SubMenu3")
+            {
+                driverContactON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+                {
+                    name = "CoolTimeMiddleOpen",
+                    type = VRC_AvatarParameterDriver.ChangeType.Set,
+                    value = 1f
+                });
+            }
+            else
+            {
+                driverContactON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+                {
+                    name = "CoolTimeOpen",
+                    type = VRC_AvatarParameterDriver.ChangeType.Set,
+                    value = 1f
+                });
+            }
+
+
 
             //コンタクトOFFにドライバパラメータ追加
             var driverContactOFF = stateContactOFF.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
@@ -281,15 +311,56 @@ namespace UIset.util
             {
                 name = process + "Toggle",
                 type = VRC_AvatarParameterDriver.ChangeType.Set,
-                value = 1f
-            });
-            driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
-            {
-                name = "CoolTimeOpen",
-                type = VRC_AvatarParameterDriver.ChangeType.Set,
-                value = 1f
+                value = 0
             });
             driverContactOFF.localOnly = true;
+            if (process == "MainMenu")
+            {
+                driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+                {
+                    name = "CoolTimeLongClose",
+                    type = VRC_AvatarParameterDriver.ChangeType.Set,
+                    value = 1
+                });
+                driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+                {
+                    name = "SubMenu1Toggle",
+                    type = VRC_AvatarParameterDriver.ChangeType.Set,
+                    value = 0
+                });
+                driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+                {
+                    name = "SubMenu2Toggle",
+                    type = VRC_AvatarParameterDriver.ChangeType.Set,
+                    value = 0
+                });
+                driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+                {
+                    name = "SubMenu3Toggle",
+                    type = VRC_AvatarParameterDriver.ChangeType.Set,
+                    value = 0
+                });
+            }
+            else if (process == "SubMenu1" || process == "SubMenu2" || process == "SubMenu3")
+            {
+                driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+                {
+                    name = "CoolTimeMiddleClose",
+                    type = VRC_AvatarParameterDriver.ChangeType.Set,
+                    value = 1f
+                });
+            }
+            else
+            {
+                driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+                {
+                    name = "CoolTimeClose",
+                    type = VRC_AvatarParameterDriver.ChangeType.Set,
+                    value = 1f
+                });
+
+            }
+
 
 
             //遷移を追加
@@ -370,7 +441,7 @@ namespace UIset.util
             });
             driverContactON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
             {
-                name = "CoolTimeClose",
+                name = "CoolTimeOpen",
                 type = VRC_AvatarParameterDriver.ChangeType.Set,
                 value = 1f
             });
@@ -386,7 +457,7 @@ namespace UIset.util
             });
             driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
             {
-                name = "CoolTimeOpen",
+                name = "CoolTimeClose",
                 type = VRC_AvatarParameterDriver.ChangeType.Set,
                 value = 1f
             });
@@ -469,11 +540,16 @@ namespace UIset.util
             transEmptyToButtonON.AddCondition(AnimatorConditionMode.If, 1f, process + "Toggle");
 
             //emptyからOFF
-            var transEmptyToButtonOFF = stateEmpty.AddTransition(stateButtonOFF);
-            transEmptyToButtonOFF.exitTime = 0;
-            transEmptyToButtonOFF.duration = 0;
-            transEmptyToButtonOFF.hasExitTime = false;
-            transEmptyToButtonOFF.AddCondition(AnimatorConditionMode.IfNot, 1f, process + "Toggle");
+            //emptyからOFF
+            if (process != "MainMenu" && process != "SubMenu1" && process != "SubMenu2" && process != "SubMenu3")
+            {
+                var transEmptyToButtonOFF = stateEmpty.AddTransition(stateButtonOFF);
+                transEmptyToButtonOFF.exitTime = 0;
+                transEmptyToButtonOFF.duration = 0;
+                transEmptyToButtonOFF.hasExitTime = false;
+                transEmptyToButtonOFF.AddCondition(AnimatorConditionMode.IfNot, 1f, process + "Toggle");
+            }
+
 
             //ONからOFF
             var transButtonONToButtonOFF = stateButtonON.AddTransition(stateButtonOFF);
@@ -536,11 +612,15 @@ namespace UIset.util
             transEmptyToButtonON.AddCondition(AnimatorConditionMode.Equals, count, process + "ObjectInt");
 
             //emptyからOFF
-            var transEmptyToButtonOFF = stateEmpty.AddTransition(stateButtonOFF);
-            transEmptyToButtonOFF.exitTime = 0;
-            transEmptyToButtonOFF.duration = 0;
-            transEmptyToButtonOFF.hasExitTime = false;
-            transEmptyToButtonOFF.AddCondition(AnimatorConditionMode.NotEqual, count, process + "ObjectInt");
+            if (process != "MainMenu" && process != "SubMenu1" && process != "SubMenu2" && process != "SubMenu3")
+            {
+                var transEmptyToButtonOFF = stateEmpty.AddTransition(stateButtonOFF);
+                transEmptyToButtonOFF.exitTime = 0;
+                transEmptyToButtonOFF.duration = 0;
+                transEmptyToButtonOFF.hasExitTime = false;
+                transEmptyToButtonOFF.AddCondition(AnimatorConditionMode.NotEqual, count, process + "ObjectInt");
+            }
+
 
             //ONからOFF
             var transButtonONToButtonOFF = stateButtonON.AddTransition(stateButtonOFF);
