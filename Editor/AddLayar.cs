@@ -87,8 +87,24 @@ namespace UIset.util
             stateCancelMiddle.writeDefaultValues = writeDefault;
             stateCancelMiddle.motion = animeCancelMiddle;
 
+            //編集したものにSetDirty
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateALLON);
+            EditorUtility.SetDirty(stateSelect);
+            EditorUtility.SetDirty(stateSelectLong);
+            EditorUtility.SetDirty(stateSelectMiddle);
+            EditorUtility.SetDirty(stateCancel);
+            EditorUtility.SetDirty(stateCancelLong);
+            EditorUtility.SetDirty(stateCancelMiddle);
+
             //stateALLONにドライバパラメータ追加
             var driverStateALLON = stateALLON.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
+            AssetDatabase.AddObjectToAsset(stateALLON, FXController);
+            AssetDatabase.AddObjectToAsset(driverStateALLON, FXController);
+            EditorUtility.SetDirty(stateALLON);
+            EditorUtility.SetDirty(driverStateALLON);
+            AssetDatabase.SaveAssets();
+
             driverStateALLON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
             {
                 name = "CoolTimeOpen",
@@ -135,12 +151,16 @@ namespace UIset.util
             transEmptyToCancel.hasExitTime = false;
             transEmptyToCancel.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeClose");
 
+            //編集したものにSetDirty
+            EditorUtility.SetDirty(transEmptyToCancel);
+
             //EmptyToCancelMiddle
             var transEmptyToCancelMiddle = stateEmpty.AddTransition(stateCancelMiddle);
             transEmptyToCancelMiddle.exitTime = 0;
             transEmptyToCancelMiddle.duration = 0;
             transEmptyToCancelMiddle.hasExitTime = false;
             transEmptyToCancelMiddle.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeMiddleClose");
+            EditorUtility.SetDirty(transEmptyToCancelMiddle);
 
             //EmptyToCancelLong
             var transEmptyToCancelLong = stateEmpty.AddTransition(stateCancelLong);
@@ -148,6 +168,7 @@ namespace UIset.util
             transEmptyToCancelLong.duration = 0;
             transEmptyToCancelLong.hasExitTime = false;
             transEmptyToCancelLong.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeLongClose");
+            EditorUtility.SetDirty(transEmptyToCancelLong);
 
             //EmptyToSelect
             var transEmptyToSelect = stateEmpty.AddTransition(stateSelect);
@@ -155,6 +176,7 @@ namespace UIset.util
             transEmptyToSelect.duration = 0;
             transEmptyToSelect.hasExitTime = false;
             transEmptyToSelect.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeOpen");
+            EditorUtility.SetDirty(transEmptyToSelect);
 
             //EmptyToSelectMiddle
             var transEmptyToSelectMiddle = stateEmpty.AddTransition(stateSelectMiddle);
@@ -162,6 +184,7 @@ namespace UIset.util
             transEmptyToSelectMiddle.duration = 0;
             transEmptyToSelectMiddle.hasExitTime = false;
             transEmptyToSelectMiddle.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeMiddleOpen");
+            EditorUtility.SetDirty(transEmptyToSelectMiddle);
 
             //EmptyToSelectLong
             var transEmptyToSelectLong = stateEmpty.AddTransition(stateSelectLong);
@@ -169,6 +192,7 @@ namespace UIset.util
             transEmptyToSelectLong.duration = 0;
             transEmptyToSelectLong.hasExitTime = false;
             transEmptyToSelectLong.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeLongOpen");
+            EditorUtility.SetDirty(transEmptyToSelectLong);
 
             //CancelToALLON
             var transCancelToALLON = stateCancel.AddTransition(stateALLON);
@@ -177,6 +201,7 @@ namespace UIset.util
             transCancelToALLON.hasFixedDuration = true;
             transCancelToALLON.duration = 0;
             transCancelToALLON.offset = 0;
+            EditorUtility.SetDirty(transCancelToALLON);
 
             //CancelMiddleToALLON
             var transCancelMiddleToALLON = stateCancelMiddle.AddTransition(stateALLON);
@@ -185,6 +210,7 @@ namespace UIset.util
             transCancelMiddleToALLON.hasFixedDuration = true;
             transCancelMiddleToALLON.duration = 0;
             transCancelMiddleToALLON.offset = 0;
+            EditorUtility.SetDirty(transCancelMiddleToALLON);
 
             //CancelLongToALLON
             var transCancelLongToALLON = stateCancelLong.AddTransition(stateALLON);
@@ -193,6 +219,7 @@ namespace UIset.util
             transCancelLongToALLON.hasFixedDuration = true;
             transCancelLongToALLON.duration = 0;
             transCancelLongToALLON.offset = 0;
+            EditorUtility.SetDirty(transCancelLongToALLON);
 
             //SelectToALLON
             var transSelectToALLON = stateSelect.AddTransition(stateALLON);
@@ -201,6 +228,7 @@ namespace UIset.util
             transSelectToALLON.hasFixedDuration = true;
             transSelectToALLON.duration = 0;
             transSelectToALLON.offset = 0;
+            EditorUtility.SetDirty(transSelectToALLON);
 
             //SelectMiddleToALLON
             var transSelectMiddleToALLON = stateSelectMiddle.AddTransition(stateALLON);
@@ -209,6 +237,7 @@ namespace UIset.util
             transSelectMiddleToALLON.hasFixedDuration = true;
             transSelectMiddleToALLON.duration = 0;
             transSelectMiddleToALLON.offset = 0;
+            EditorUtility.SetDirty(transSelectMiddleToALLON);
 
             //SelectLongToALLON
             var transSelectLongToALLON = stateSelectLong.AddTransition(stateALLON);
@@ -217,6 +246,7 @@ namespace UIset.util
             transSelectLongToALLON.hasFixedDuration = true;
             transSelectLongToALLON.duration = 0;
             transSelectLongToALLON.offset = 0;
+            EditorUtility.SetDirty(transSelectLongToALLON);
 
             //ALLONtoEmpty
             var transALLONToEmpty = stateALLON.AddTransition(stateEmpty);
@@ -225,7 +255,7 @@ namespace UIset.util
             transALLONToEmpty.hasFixedDuration = true;
             transALLONToEmpty.duration = 0;
             transALLONToEmpty.offset = 0;
-
+            EditorUtility.SetDirty(transALLONToEmpty);
 
 
         }
@@ -265,6 +295,11 @@ namespace UIset.util
             stateContactOFF.motion = animeEmpty;
             stateContactOFF.writeDefaultValues = writeDefault;
 
+            //編集したものにSetDirty
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateContactON);
+            EditorUtility.SetDirty(stateContactOFF);
+
 
             //コンタクトONにドライバパラメータ追加
             var driverContactON = stateContactON.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
@@ -275,6 +310,7 @@ namespace UIset.util
                 value = 1f
             });
             driverContactON.localOnly = true;
+
             if (process == "MainMenu")
             {
                 driverContactON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
@@ -302,7 +338,7 @@ namespace UIset.util
                     value = 1f
                 });
             }
-
+            EditorUtility.SetDirty(driverContactON);
 
 
             //コンタクトOFFにドライバパラメータ追加
@@ -361,6 +397,8 @@ namespace UIset.util
 
             }
 
+            EditorUtility.SetDirty(driverContactOFF);
+
 
 
             //遷移を追加
@@ -370,6 +408,7 @@ namespace UIset.util
             transEmptyToON.hasExitTime = false;
             transEmptyToON.AddCondition(AnimatorConditionMode.If, 1f, process + "Contact");
             transEmptyToON.AddCondition(AnimatorConditionMode.IfNot, 1f, process + "Toggle");
+            EditorUtility.SetDirty(transEmptyToON);
 
             var transEmptyToOFF = stateEmpty.AddTransition(stateContactOFF);
             transEmptyToOFF.exitTime = 0;
@@ -377,19 +416,21 @@ namespace UIset.util
             transEmptyToOFF.hasExitTime = false;
             transEmptyToOFF.AddCondition(AnimatorConditionMode.If, 1f, process + "Contact");
             transEmptyToOFF.AddCondition(AnimatorConditionMode.If, 1f, process + "Toggle");
-
+            EditorUtility.SetDirty(transEmptyToOFF);
 
             var transContactONToExit = stateContactON.AddExitTransition();
             transContactONToExit.exitTime = 0;
             transContactONToExit.duration = 0;
             transContactONToExit.hasExitTime = false;
             transContactONToExit.AddCondition(AnimatorConditionMode.IfNot, 1f, process + "Contact");
+            EditorUtility.SetDirty(transContactONToExit);
 
             var transContactOFFToExit = stateContactOFF.AddExitTransition();
             transContactOFFToExit.exitTime = 0;
             transContactOFFToExit.duration = 0;
             transContactOFFToExit.hasExitTime = false;
             transContactOFFToExit.AddCondition(AnimatorConditionMode.IfNot, 1f, process + "Contact");
+            EditorUtility.SetDirty(transContactOFFToExit);
 
         }
 
@@ -429,6 +470,10 @@ namespace UIset.util
             var stateContactOFF = contactLayer.stateMachine.AddState("contactOFF", new Vector3(550, 0, 0));
             stateContactOFF.motion = animeEmpty;
             stateContactOFF.writeDefaultValues = writeDefault;
+            //編集したものにSetDirty
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateContactON);
+            EditorUtility.SetDirty(stateContactOFF);
 
 
             //コンタクトONにドライバパラメータ追加
@@ -446,6 +491,7 @@ namespace UIset.util
                 value = 1f
             });
             driverContactON.localOnly = true;
+            EditorUtility.SetDirty(driverContactON);
 
             //コンタクトOFFにドライバパラメータ追加
             var driverContactOFF = stateContactOFF.AddStateMachineBehaviour<VRCAvatarParameterDriver>();

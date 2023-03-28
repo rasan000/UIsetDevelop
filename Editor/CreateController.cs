@@ -249,11 +249,7 @@ public class CreateController : EditorWindow
                     ringObject.SetActive(true);
                 }
                 EditorGUILayout.EndVertical();
-
-
-
-
-
+                return;
             }
 
 
@@ -299,6 +295,8 @@ public class CreateController : EditorWindow
                     //アバター用のコントローラー作成
                     AnimatorController animatorController = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
 
+
+
                     //メニュー用のプロパティセット(Jsonで保存)
                     string json = ReadJson.Read("Assets/UIset/Editor/UIsetInfo.json");
                     JObject jsonObj = JObject.Parse(json);
@@ -317,6 +315,8 @@ public class CreateController : EditorWindow
                     stateNormarized.writeDefaultValues = writeDefault;
                     stateNormarized.motion = animeNormarized;
                     animatorController.AddLayer(NormarizedLayer);
+
+
 
                     //効果音レイヤー
                     ad.CreateSoundLayer(animatorController, writeDefault);
