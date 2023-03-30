@@ -32,5 +32,26 @@
                 "Count": 5
             }
         ]
-    }
+    },
+    "UIsetButtonList": [
+        "MainObject1",
+        "MainObject2",
+        "MainObject3",
+        "MainObject4",
+        "MainObject5",
+        "MainObject6",
+        "Sub1Object1",
+        "Sub1Object2",
+        "Sub2Object1",
+        "Sub2Object2",
+        "Sub2Object3",
+        "Sub2Object4",
+        "Sub2Object5",
+        "Sub2Object6",
+        "Sub3Object1",
+        "Sub3Object2",
+        "Sub3Object3",
+        "Sub3Object4",
+        "Sub3Object5"
+    ]
 }
