@@ -17,7 +17,7 @@ using VRC.SDK3.Dynamics.Contact.Components;
 ///
 
 [UnityEditor.InitializeOnLoad]
-public class CreateController : EditorWindow
+public class UIsetEditor : EditorWindow
 {
 
     //コントローラーとアニメーションを置くフォルダ
@@ -46,11 +46,13 @@ public class CreateController : EditorWindow
     //defaultON用
     private List<bool> _checkboxDefaultON = new List<bool>();
 
+    ObjectReader or = new ObjectReader();
+
     // メニュー
-    [MenuItem("UIset/Create Controller")]
+    [MenuItem("UIset/UIsetEditor")]
     private static void ShowWindow()
     {
-        CreateController window = GetWindowWithRect<CreateController>(new Rect(0, 0, 480, 800));
+        UIsetEditor window = GetWindowWithRect<UIsetEditor>(new Rect(0, 0, 480, 800));
         window.Show();
     }
 
@@ -210,7 +212,7 @@ public class CreateController : EditorWindow
 
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("2.以下のボタンを押してからメニューの位置を調整してください", EditorStyles.boldLabel);
-                GameObject menuPointObject = FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "MenuPoint--(メニューの位置が調整できます)--");
+                GameObject menuPointObject = or.FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "MenuPoint--(メニューの位置が調整できます)--");
                 if (GUILayout.Button("メニューの位置を調整する", GUILayout.Width(200)))
                 {
                     Selection.activeGameObject = menuPointObject;
@@ -218,14 +220,14 @@ public class CreateController : EditorWindow
 
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("3.以下のボタンを押してから指輪の位置を調整してください", EditorStyles.boldLabel);
-                GameObject ringPointObject = FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "RingPoint--(指輪の場所が調整できます)--");
+                GameObject ringPointObject = or.FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "RingPoint--(指輪の場所が調整できます)--");
                 if (GUILayout.Button("指輪の位置を調整する", GUILayout.Width(200)))
                 {
                     Selection.activeGameObject = ringPointObject;
                 }
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("4.指輪の大きさが合わない時は以下のボタンを押してからscaleの値を調整してください", EditorStyles.boldLabel);
-                GameObject ringObject = FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "指輪");
+                GameObject ringObject = or.FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "指輪");
                 if (GUILayout.Button("指輪の大きさを調整する", GUILayout.Width(200)))
                 {
                     Selection.activeGameObject = ringObject;
@@ -233,7 +235,7 @@ public class CreateController : EditorWindow
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("5.最後に以下のボタンを押して設定を完了してください", EditorStyles.boldLabel);
                 GameObject UIsetObject = avatarObject.transform.Find("UIset").gameObject;
-                GameObject UIObject = FindGameObjectByName(UIsetObject, "UI");
+                GameObject UIObject = or.FindGameObjectByName(UIsetObject, "UI");
                 if (GUILayout.Button("UIsetの設定を完了する", GUILayout.Width(200)))
                 {
                     UIObject.SetActive(false);
@@ -286,7 +288,7 @@ public class CreateController : EditorWindow
                     if (!Directory.Exists(destinationPath))
                     {
                         Directory.CreateDirectory(destinationPath);
-                        CopyDirectoryRecursive(currentMaterialFolder, destinationPath);
+                        AssetManipulator.CopyDirectoryRecursive(currentMaterialFolder, destinationPath);
                         // アセットデータベースを更新して、変更を反映
                         AssetDatabase.Refresh();
                     }
@@ -298,7 +300,7 @@ public class CreateController : EditorWindow
 
 
                     //メニュー用のプロパティセット(Jsonで保存)
-                    string json = ReadJson.Read("Assets/UIset/Editor/UIsetInfo.json");
+                    string json = JsonReader.ReadJson("Assets/UIset/Editor/UIsetInfo.json");
                     JObject jsonObj = JObject.Parse(json);
                     AddLayer ad = new AddLayer();
 
@@ -370,8 +372,6 @@ public class CreateController : EditorWindow
                     }
 
 
-
-
                     //UIsetをアバター直下にセット
                     GameObject prefabUIset = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/UIset.prefab", typeof(GameObject)) as GameObject;
                     prefabUIset = Instantiate(prefabUIset);
@@ -382,7 +382,7 @@ public class CreateController : EditorWindow
                     foreach (string property in jsonObj["UIsetButtonList"])
                     {
                         GameObject searchObject = avatarObject.transform.Find("UIset").gameObject;
-                        GameObject mesh = FindGameObjectByName(searchObject, property + "Mesh");
+                        GameObject mesh = or.FindGameObjectByName(searchObject, property + "Mesh");
                         Material setMaterial = AssetDatabase.LoadAssetAtPath(destinationPath + "/" + property + ".mat", typeof(Material)) as Material;
                         if (mesh != null)
                         {
@@ -456,7 +456,7 @@ public class CreateController : EditorWindow
                 {
                     //カテゴリ名
                     GameObject searchObject = avatarObject.transform.Find("UIset").gameObject;
-                    GameObject mesh = FindGameObjectByName(searchObject, layer.name + "Mesh");
+                    GameObject mesh = or.FindGameObjectByName(searchObject, layer.name + "Mesh");
                     if (mesh != null)
                     {
                         //editorにボタンとして表示して、クリックしたらsceneを参照する
@@ -508,7 +508,7 @@ public class CreateController : EditorWindow
 
 
                     //他のユーザーからの操作を許可するかチェックボックス
-                    GameObject tempReceiverObject = FindGameObjectByName(searchObject, layer.name + "Receiver");
+                    GameObject tempReceiverObject = or.FindGameObjectByName(searchObject, layer.name + "Receiver");
                     if (tempReceiverObject != null)
                     {
                         VRCContactReceiver contactReceiver = tempReceiverObject.GetComponent<VRCContactReceiver>();
@@ -638,91 +638,8 @@ public class CreateController : EditorWindow
         EditorGUI.indentLevel--;
     }
 
-    /// <summary>
-    /// フォルダーを内容ごとコピーします
-    /// </summary>
-    /// <param name="sourcePath"></param>
-    /// <param name="destinationPath"></param>
-    private static void CopyDirectoryRecursive(string sourcePath, string destinationPath)
-    {
-        // コピー先ディレクトリが存在しない場合は、作成します。
-        if (!Directory.Exists(destinationPath))
-        {
-            Directory.CreateDirectory(destinationPath);
-        }
 
-        // ディレクトリ内のファイルをすべてコピーします。
-        foreach (string filePath in Directory.GetFiles(sourcePath))
-        {
-            string destinationFilePath = Path.Combine(destinationPath, Path.GetFileName(filePath));
-            File.Copy(filePath, destinationFilePath, true);
-        }
 
-        // サブディレクトリを再帰的にコピーします。
-        foreach (string subDirectory in Directory.GetDirectories(sourcePath))
-        {
-            string destinationSubDirectory = Path.Combine(destinationPath, Path.GetFileName(subDirectory));
-            CopyDirectoryRecursive(subDirectory, destinationSubDirectory);
-        }
-    }
-
-    /// <summary>
-    /// Meshを探索してウィンドウ上に表示します
-    /// </summary>
-    /// <param name="parent"></param>
-    /// <returns></returns>
-    private MeshRenderer FindMeshRendererInChildren(Transform parent, string meshName)
-    {
-        MeshRenderer result = null;
-        foreach (Transform child in parent)
-        {
-            if (child.name == meshName)
-            {
-                result = child.GetComponent<MeshRenderer>();
-                if (result != null)
-                {
-                    return result;
-                }
-            }
-
-            result = FindMeshRendererInChildren(child, meshName);
-            if (result != null)
-            {
-                return result;
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// オブジェクトを全検索する
-    /// </summary>
-    /// <param name="parent"></param>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    public GameObject FindGameObjectByName(GameObject parent, string name)
-    {
-        Transform parentTransform = parent.transform;
-
-        // 子オブジェクトの中から名前が一致するオブジェクトを検索します。
-        foreach (Transform childTransform in parentTransform)
-        {
-            if (childTransform.name == name)
-            {
-                return childTransform.gameObject;
-            }
-
-            // 孫オブジェクトも含めて検索します。
-            GameObject found = FindGameObjectByName(childTransform.gameObject, name);
-            if (found != null)
-            {
-                return found;
-            }
-        }
-
-        return null;
-    }
 }
 
 
