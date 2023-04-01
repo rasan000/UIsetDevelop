@@ -43,7 +43,7 @@ public class UIsetSetter : UnityEditor.EditorWindow
     [MenuItem("UIset/UIsetEditor")]
     private static void ShowWindow()
     {
-        UIsetSetter window = GetWindowWithRect<UIsetSetter>(new Rect(0, 0, 400, 550));
+        UIsetSetter window = GetWindowWithRect<UIsetSetter>(new Rect(0, 0, 450, 600));
         window.Show();
     }
 
@@ -87,7 +87,12 @@ public class UIsetSetter : UnityEditor.EditorWindow
 
                 EditorGUILayout.Space(10);
                 EditorGUILayout.LabelField("1.各ボタンに登録したいアニメを設定してください", EditorStyles.boldLabel);
-                if (GUILayout.Button("-------編集ウィンドウを開く---------", GUILayout.Width(300), GUILayout.Height(50)))
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                bool openEditorWindowButton = GUILayout.Button("-------編集ウィンドウを開く---------", GUILayout.Width(300), GUILayout.Height(50));
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+                if (openEditorWindowButton)
                 {
                     //アニメーション設定用のウィンドウを開く
                     UIsetEditor ue = new UIsetEditor();
@@ -97,51 +102,70 @@ public class UIsetSetter : UnityEditor.EditorWindow
 
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("2.以下のボタンを押してからメニューの位置を調整してください", EditorStyles.boldLabel);
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
                 GameObject menuPointObject = or.FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "MenuPoint--(メニューの位置が調整できます)--");
-                if (GUILayout.Button("メニューの位置を調整する", GUILayout.Width(200)))
+                if (GUILayout.Button("メニューの位置を調整する", GUILayout.Width(200), GUILayout.Height(30)))
                 {
                     Selection.activeGameObject = menuPointObject;
                 }
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
 
                 //指輪のポジション調整
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("3.以下のボタンを押してから指輪の位置を調整してください", EditorStyles.boldLabel);
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
                 GameObject ringPointObject = or.FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "RingPoint--(指輪の場所が調整できます)--");
-                if (GUILayout.Button("指輪の位置を調整する", GUILayout.Width(200)))
+                if (GUILayout.Button("指輪の位置を調整する", GUILayout.Width(200), GUILayout.Height(30)))
                 {
                     Selection.activeGameObject = ringPointObject;
                 }
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
 
                 //指輪の大きさ調整
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("4.指輪の大きさが合わない時は以下のボタンを押してからscaleの値を調整してください", EditorStyles.boldLabel);
                 GameObject ringObject = or.FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "指輪");
-                if (GUILayout.Button("指輪の大きさを調整する", GUILayout.Width(200)))
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("指輪の大きさを調整する", GUILayout.Width(200), GUILayout.Height(30)))
                 {
                     Selection.activeGameObject = ringObject;
                 }
-
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
                 //アップロード前に必要ではないものは非表示にする
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("5.最後に以下のボタンを押して設定を完了してください", EditorStyles.boldLabel);
                 GameObject UIsetObject = avatarObject.transform.Find("UIset").gameObject;
                 GameObject UIObject = or.FindGameObjectByName(UIsetObject, "UI");
-                if (GUILayout.Button("UIsetの設定を完了する", GUILayout.Width(200)))
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("UIsetの設定を完了する", GUILayout.Width(200), GUILayout.Height(30)))
                 {
                     UIObject.SetActive(false);
                     UIsetObject.SetActive(true);
                     ringObject.SetActive(true);
 
                 }
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
 
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
                 //再設定用にUIsetを表示する
-                if (GUILayout.Button("再設定する", GUILayout.Width(200)))
+                if (GUILayout.Button("再設定する", GUILayout.Width(200), GUILayout.Height(30)))
                 {
 
                     UIObject.SetActive(true);
                     UIsetObject.SetActive(true);
                     ringObject.SetActive(true);
                 }
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
                 EditorGUILayout.EndVertical();
 
             }
