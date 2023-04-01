@@ -27,16 +27,7 @@ public class UIsetSetter : UnityEditor.EditorWindow
     private VRCAvatarDescriptor avatarDescriptor;
     private GameObject avatarObject;
 
-    //バグのもとなのでwriteDefaultはfalseで
-    bool writeDefault = false;
 
-    //スクロール用
-    private Vector2 _scrollPosition = Vector2.zero;
-    //トグルウィンドウ用
-    private bool _toggleMainMenu = false;
-    private bool _toggleSub1Menu = false;
-    private bool _toggleSub2Menu = false;
-    private bool _toggleSub3Menu = false;
 
     //アニメーション入れ替え用
     private AnimatorController _animatorController;
@@ -52,7 +43,7 @@ public class UIsetSetter : UnityEditor.EditorWindow
     [MenuItem("UIset/UIsetEditor")]
     private static void ShowWindow()
     {
-        UIsetSetter window = GetWindowWithRect<UIsetSetter>(new Rect(0, 0, 480, 800));
+        UIsetSetter window = GetWindowWithRect<UIsetSetter>(new Rect(0, 0, 400, 550));
         window.Show();
     }
 
@@ -95,116 +86,14 @@ public class UIsetSetter : UnityEditor.EditorWindow
 
 
                 EditorGUILayout.Space(10);
-                EditorGUILayout.LabelField("1.ボタンに登録したいアニメを設定してください", EditorStyles.boldLabel);
-
-                //スクロールウィンドウ
-                //メインメニュー
-                Color originalContentColor = GUI.contentColor;
-                GUI.contentColor = Color.white;
-                _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
-                EditorGUILayout.TextField("※アバター正面のメニューです。", EditorStyles.miniLabel);
-                _toggleMainMenu = EditorGUILayout.Foldout(_toggleMainMenu, "MainMenu");
-                GUI.contentColor = originalContentColor;
-                if (_toggleMainMenu)
+                EditorGUILayout.LabelField("1.各ボタンに登録したいアニメを設定してください", EditorStyles.boldLabel);
+                if (GUILayout.Button("-------編集ウィンドウを開く---------", GUILayout.Width(300), GUILayout.Height(50)))
                 {
-                    lv.ShowLayerAnimations(animatorController, "Main", avatarObject);
+                    //アニメーション設定用のウィンドウを開く
+                    UIsetEditor ue = new UIsetEditor();
+                    ue.SetData(avatarDescriptor, avatarObject);
+                    ue.Show();
                 }
-                GUILayout.Space(20);
-                //サブメニュ－１
-                EditorGUILayout.TextField("※アバターから向かって上のメニューです。", EditorStyles.miniLabel);
-                GUI.contentColor = Color.red;
-                _toggleSub1Menu = EditorGUILayout.Foldout(_toggleSub1Menu, "Sub1Menu");
-                GUI.contentColor = originalContentColor;
-                if (_toggleSub1Menu)
-                {
-                    lv.ShowLayerAnimations(animatorController, "Sub1", avatarObject);
-                }
-                GUILayout.Space(20);
-
-
-                //サブメニュ－２
-                EditorGUILayout.TextField("※アバターから向かって右のメニューです。このレイヤーはいずれか一つだけ選択されます", EditorStyles.miniLabel);
-                GUI.contentColor = Color.cyan;
-                _toggleSub2Menu = EditorGUILayout.Foldout(_toggleSub2Menu, "Sub2Menu");
-                GUI.contentColor = originalContentColor;
-                //defaultIntの設定
-                ModularAvatarParameters MAMergeIntParameters = avatarObject.transform.Find("UIset").GetComponent<ModularAvatarParameters>();
-                ParameterConfig tempParameters = MAMergeIntParameters.parameters[0];
-                for (int i = 0; i < MAMergeIntParameters.parameters.Count; i++)
-                {
-                    if (MAMergeIntParameters.parameters[i].nameOrPrefix.Equals("Sub2ObjectInt"))
-                    {
-                        {
-                            //初期選択値
-                            GUILayout.BeginHorizontal();
-                            GUILayout.Label("初期選択ボタン", GUILayout.Width(150));
-                            int tempIntValue = EditorGUILayout.IntField((int)MAMergeIntParameters.parameters[i].defaultValue, GUILayout.Width(100));
-                            GUILayout.EndHorizontal();
-                            if (tempIntValue <= 6 && tempIntValue >= 0)
-                            {
-                                if (tempIntValue != (int)MAMergeIntParameters.parameters[i].defaultValue)
-                                {
-                                    ParameterConfig tempParameterConfig = MAMergeIntParameters.parameters[i];
-                                    tempParameterConfig.syncType = ParameterSyncType.Int;
-                                    tempParameterConfig.defaultValue = tempIntValue;
-                                    MAMergeIntParameters.parameters[i] = tempParameterConfig;
-                                }
-                            }
-                            else
-                            {
-                                //アラート表示
-                                EditorUtility.DisplayDialog("Error", "0～6の整数を入力してください", "戻る");
-                                tempIntValue = 1;
-                            }
-
-                            //保存するか
-                            if (MAMergeIntParameters.parameters[i].saved)
-                            {
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label("アバター変更時にリセットさせない", GUILayout.Width(200));
-                                bool tempIntSavedValue = GUILayout.Toggle(true, "");
-                                GUILayout.EndHorizontal();
-                                if (!tempIntSavedValue)
-                                {
-                                    ParameterConfig tempParameterConfig = MAMergeIntParameters.parameters[i];
-                                    tempParameterConfig.saved = false;
-                                    MAMergeIntParameters.parameters[i] = tempParameterConfig;
-                                }
-                            }
-                            else
-                            {
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label("アバター変更時にリセットさせない", GUILayout.Width(200));
-                                bool tempIntSavedValue = GUILayout.Toggle(false, "");
-                                GUILayout.EndHorizontal();
-                                if (tempIntSavedValue)
-                                {
-                                    ParameterConfig tempParameterConfig = MAMergeIntParameters.parameters[i];
-                                    tempParameterConfig.saved = true;
-                                    MAMergeIntParameters.parameters[i] = tempParameterConfig;
-                                }
-                            }
-                        }
-                    }
-
-                }
-                //lv.ShowLayerAnimations
-                if (_toggleSub2Menu)
-                {
-                    lv.ShowLayerAnimations(animatorController, "Sub2", avatarObject);
-                }
-                GUILayout.Space(20);
-
-                //サブメニュ－３
-                EditorGUILayout.TextField("※アバターから向かって左のメニューです。", EditorStyles.miniLabel);
-                GUI.contentColor = Color.green;
-                _toggleSub3Menu = EditorGUILayout.Foldout(_toggleSub3Menu, "Sub3Menu");
-                GUI.contentColor = originalContentColor;
-                if (_toggleSub3Menu)
-                {
-                    lv.ShowLayerAnimations(animatorController, "Sub3", avatarObject);
-                }
-                EditorGUILayout.EndScrollView();
 
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("2.以下のボタンを押してからメニューの位置を調整してください", EditorStyles.boldLabel);
@@ -214,6 +103,7 @@ public class UIsetSetter : UnityEditor.EditorWindow
                     Selection.activeGameObject = menuPointObject;
                 }
 
+                //指輪のポジション調整
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("3.以下のボタンを押してから指輪の位置を調整してください", EditorStyles.boldLabel);
                 GameObject ringPointObject = or.FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "RingPoint--(指輪の場所が調整できます)--");
@@ -221,6 +111,8 @@ public class UIsetSetter : UnityEditor.EditorWindow
                 {
                     Selection.activeGameObject = ringPointObject;
                 }
+
+                //指輪の大きさ調整
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("4.指輪の大きさが合わない時は以下のボタンを押してからscaleの値を調整してください", EditorStyles.boldLabel);
                 GameObject ringObject = or.FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "指輪");
@@ -228,6 +120,8 @@ public class UIsetSetter : UnityEditor.EditorWindow
                 {
                     Selection.activeGameObject = ringObject;
                 }
+
+                //アップロード前に必要ではないものは非表示にする
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("5.最後に以下のボタンを押して設定を完了してください", EditorStyles.boldLabel);
                 GameObject UIsetObject = avatarObject.transform.Find("UIset").gameObject;
@@ -239,6 +133,8 @@ public class UIsetSetter : UnityEditor.EditorWindow
                     ringObject.SetActive(true);
 
                 }
+
+                //再設定用にUIsetを表示する
                 if (GUILayout.Button("再設定する", GUILayout.Width(200)))
                 {
 
