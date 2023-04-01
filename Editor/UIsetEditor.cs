@@ -11,16 +11,17 @@ using nadena.dev.modular_avatar.core;
 using System.Collections.Generic;
 using VRC.SDK3.Dynamics.Contact.Components;
 using UIset.Layar;
+using UIset;
 
 /// <summary>
 /// UIset用のアニメーターを、セットしたアバター用に新規作成します
 /// </summary>
 ///
 
-[UnityEditor.InitializeOnLoad]
-public class UIsetEditor : EditorWindow
-{
 
+
+public class UIsetEditor : UnityEditor.EditorWindow
+{
     //コントローラーとアニメーションを置くフォルダ
     private const string avatarSettingInfoPath = "Assets/UIset/AvatarSettingInfo";
     //コピー用マテリアル
@@ -113,7 +114,6 @@ public class UIsetEditor : EditorWindow
                     lv.ShowLayerAnimations(animatorController, "Main", avatarObject);
                 }
                 GUILayout.Space(20);
-
                 //サブメニュ－１
                 EditorGUILayout.TextField("※アバターから向かって上のメニューです。", EditorStyles.miniLabel);
                 GUI.contentColor = Color.red;
@@ -254,36 +254,43 @@ public class UIsetEditor : EditorWindow
                     ringObject.SetActive(true);
                 }
                 EditorGUILayout.EndVertical();
-                return;
+
             }
 
-            //ここからコントローラー生成
-            //ファイルがない場合はコントローラー生成ボタンを表示
-            GUILayout.Label(avatarName + "用のファイルを作成します。CreateControllerボタンを押してください", EditorStyles.boldLabel);
-            bool createUIFXButton = GUILayout.Button("CreateController");
-            GUILayout.BeginHorizontal();
-            GUILayout.EndHorizontal();
 
-            //アバターがセットされていない場合はエラーで終了
-            if (avatarDescriptor == null && createUIFXButton)
+            else
             {
-                EditorUtility.DisplayDialog("Error", "アバターがセットされていません", "戻る");
-                Debug.LogErrorFormat("アバターをセットしてください");
-                return;
-            }
+                //ここからコントローラー生成
+                //ファイルがない場合はコントローラー生成ボタンを表示
+                GUILayout.Label(avatarName + "用のファイルを作成します。CreateControllerボタンを押してください", EditorStyles.boldLabel);
+                bool createUIFXButton = GUILayout.Button("CreateController");
+                GUILayout.BeginHorizontal();
+                GUILayout.EndHorizontal();
 
-            //セットされていれば生成開始
-            if (createUIFXButton)
-            {
-                ControllerCreator cc = new ControllerCreator();
-                cc.CreateController(avatarDescriptor, avatarName);
-            }
+                //アバターがセットされていない場合はエラーで終了
+                if (avatarDescriptor == null && createUIFXButton)
+                {
+                    EditorUtility.DisplayDialog("Error", "アバターがセットされていません", "戻る");
+                    Debug.LogErrorFormat("アバターをセットしてください");
+                    return;
+                }
 
+                //セットされていれば生成開始
+                if (createUIFXButton)
+                {
+                    //UIsetをアバター直下にセット
+                    GameObject prefabUIset = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/UIset.prefab", typeof(GameObject)) as GameObject;
+                    prefabUIset = Instantiate(prefabUIset);
+                    prefabUIset.name = "UIset";
+                    prefabUIset.transform.SetParent(avatarObject.transform);
+                    UIsetCreator uc = new UIsetCreator();
+                    uc.CreateController(avatarDescriptor, avatarObject, prefabUIset);
+                }
+
+            }
         }
     }
-
-
-
+}
 
 
 

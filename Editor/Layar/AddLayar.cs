@@ -4,12 +4,10 @@ using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDKBase;
 
-namespace UIset.util
+namespace UIset.Layar
 {
     class AddLayer
     {
-
-
 
         /// <summary>
         /// CoolTime用のレイヤーを作成します
