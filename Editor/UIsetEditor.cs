@@ -5,11 +5,9 @@ using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using UIset.util;
-using Newtonsoft.Json.Linq;
 //ModularAvatar用
 using nadena.dev.modular_avatar.core;
 using System.Collections.Generic;
-using VRC.SDK3.Dynamics.Contact.Components;
 using UIset.Layar;
 using UIset;
 
@@ -17,8 +15,6 @@ using UIset;
 /// UIset用のアニメーターを、セットしたアバター用に新規作成します
 /// </summary>
 ///
-
-
 
 public class UIsetEditor : UnityEditor.EditorWindow
 {
@@ -188,8 +184,6 @@ public class UIsetEditor : UnityEditor.EditorWindow
                                     MAMergeIntParameters.parameters[i] = tempParameterConfig;
                                 }
                             }
-
-
                         }
                     }
 
@@ -200,7 +194,6 @@ public class UIsetEditor : UnityEditor.EditorWindow
                     lv.ShowLayerAnimations(animatorController, "Sub2", avatarObject);
                 }
                 GUILayout.Space(20);
-
 
                 //サブメニュ－３
                 EditorGUILayout.TextField("※アバターから向かって左のメニューです。", EditorStyles.miniLabel);
@@ -286,7 +279,6 @@ public class UIsetEditor : UnityEditor.EditorWindow
                     UIsetCreator uc = new UIsetCreator();
                     uc.CreateController(avatarDescriptor, avatarObject, prefabUIset);
                 }
-
             }
         }
     }
