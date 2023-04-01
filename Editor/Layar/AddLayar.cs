@@ -4,12 +4,120 @@ using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDKBase;
 
-namespace UIset.util
+namespace UIset.Layar
 {
+
     class AddLayer
     {
 
+        //フィールド定義
+        private const string avatarSettingInfoPath = "Assets/UIset/AvatarSettingInfo";
+        private string controllerPass;
 
+        public void setPass(string pass)
+        {
+            controllerPass = pass;
+        }
+
+
+        //テスト用メソッド
+        public void CreateTestLayer(AnimatorController FXController, bool writeDefault)
+        {
+            AnimatorControllerLayer contactLayer = new AnimatorControllerLayer
+            {
+                name = "Test",
+                defaultWeight = 1,
+                stateMachine = new AnimatorStateMachine()
+            };
+            FXController.AddLayer(contactLayer);
+            //レイヤー追加時はHideFlagを付与し、AddObjectToAssetでアセットに追加
+            contactLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
+            AssetDatabase.AddObjectToAsset(contactLayer.stateMachine, controllerPass);
+
+            //ボタン用アニメーション
+            AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
+            //アニメーションステート[0]：Empty　追加
+            var stateEmpty = contactLayer.stateMachine.AddState("Empty", new Vector3(300, 120, 0));
+            stateEmpty.motion = animeEmpty;
+            stateEmpty.writeDefaultValues = writeDefault;
+            //アニメーションステート[1]：contactON　
+            var stateContactON = contactLayer.stateMachine.AddState("contactON", new Vector3(550, 0, 0));
+            stateContactON.motion = animeEmpty;
+            stateContactON.writeDefaultValues = writeDefault;
+            //アニメーションステート[2]：contactOFF　
+            var stateContactOFF = contactLayer.stateMachine.AddState("contactOFF", new Vector3(550, 240, 0));
+            stateContactOFF.motion = animeEmpty;
+            stateContactOFF.writeDefaultValues = writeDefault;
+
+
+            //コンタクトONにドライバパラメータ追加
+            var driverContactON = stateContactON.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
+            driverContactON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+            {
+                name = "Toggle",
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
+                value = 1f
+            });
+            driverContactON.localOnly = true;
+
+
+            driverContactON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+            {
+                name = "CoolTimeLongOpen",
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
+                value = 1f
+            });
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateContactOFF);
+            EditorUtility.SetDirty(stateContactON);
+            EditorUtility.SetDirty(contactLayer.stateMachine);
+
+            // //コンタクトOFFにドライバパラメータ追加
+            // var driverContactOFF = stateContactOFF.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
+            // driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+            // {
+            //     name = "Toggle",
+            //     type = VRC_AvatarParameterDriver.ChangeType.Set,
+            //     value = 0
+            // });
+            // driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
+            // {
+            //     name = "CoolTimeMiddleClose",
+            //     type = VRC_AvatarParameterDriver.ChangeType.Set,
+            //     value = 1f
+            // });
+            // driverContactOFF.localOnly = true;
+
+            // //遷移を追加
+            // var transEmptyToON = stateEmpty.AddTransition(stateContactON);
+            // transEmptyToON.exitTime = 0;
+            // transEmptyToON.duration = 0;
+            // transEmptyToON.hasExitTime = false;
+            // transEmptyToON.AddCondition(AnimatorConditionMode.If, 1f, "Contact");
+            // transEmptyToON.AddCondition(AnimatorConditionMode.IfNot, 1f, "Toggle");
+
+            // var transEmptyToOFF = stateEmpty.AddTransition(stateContactOFF);
+            // transEmptyToOFF.exitTime = 0;
+            // transEmptyToOFF.duration = 0;
+            // transEmptyToOFF.hasExitTime = false;
+            // transEmptyToOFF.AddCondition(AnimatorConditionMode.If, 1f, "Contact");
+            // transEmptyToOFF.AddCondition(AnimatorConditionMode.If, 1f, "Toggle");
+
+            // var transContactONToExit = stateContactON.AddExitTransition();
+            // transContactONToExit.exitTime = 0;
+            // transContactONToExit.duration = 0;
+            // transContactONToExit.hasExitTime = false;
+            // transContactONToExit.AddCondition(AnimatorConditionMode.IfNot, 1f, "Contact");
+
+            // var transContactOFFToExit = stateContactOFF.AddExitTransition();
+            // transContactOFFToExit.exitTime = 0;
+            // transContactOFFToExit.duration = 0;
+            // transContactOFFToExit.hasExitTime = false;
+            // transContactOFFToExit.AddCondition(AnimatorConditionMode.IfNot, 1f, "Contact");
+
+
+
+        }
 
         /// <summary>
         /// CoolTime用のレイヤーを作成します
@@ -54,6 +162,11 @@ namespace UIset.util
             };
             FXController.AddLayer(SoundLayer);
 
+            //以下の方法で無いとpersistenseエラーが出るので注意
+            //レイヤー追加時はHideFlagを付与し、AddObjectToAssetでアセットに追加
+            SoundLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
+            AssetDatabase.AddObjectToAsset(SoundLayer.stateMachine, controllerPass);
+
             //ステート追加
             var stateEmpty = SoundLayer.stateMachine.AddState("Empty", new Vector3(300, 120, 0));
             stateEmpty.writeDefaultValues = writeDefault;
@@ -87,23 +200,9 @@ namespace UIset.util
             stateCancelMiddle.writeDefaultValues = writeDefault;
             stateCancelMiddle.motion = animeCancelMiddle;
 
-            //編集したものにSetDirty
-            EditorUtility.SetDirty(stateEmpty);
-            EditorUtility.SetDirty(stateALLON);
-            EditorUtility.SetDirty(stateSelect);
-            EditorUtility.SetDirty(stateSelectLong);
-            EditorUtility.SetDirty(stateSelectMiddle);
-            EditorUtility.SetDirty(stateCancel);
-            EditorUtility.SetDirty(stateCancelLong);
-            EditorUtility.SetDirty(stateCancelMiddle);
 
             //stateALLONにドライバパラメータ追加
             var driverStateALLON = stateALLON.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
-            AssetDatabase.AddObjectToAsset(stateALLON, FXController);
-            AssetDatabase.AddObjectToAsset(driverStateALLON, FXController);
-            EditorUtility.SetDirty(stateALLON);
-            EditorUtility.SetDirty(driverStateALLON);
-            AssetDatabase.SaveAssets();
 
             driverStateALLON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
             {
@@ -150,17 +249,13 @@ namespace UIset.util
             transEmptyToCancel.duration = 0;
             transEmptyToCancel.hasExitTime = false;
             transEmptyToCancel.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeClose");
-
-            //編集したものにSetDirty
-            EditorUtility.SetDirty(transEmptyToCancel);
-
             //EmptyToCancelMiddle
             var transEmptyToCancelMiddle = stateEmpty.AddTransition(stateCancelMiddle);
             transEmptyToCancelMiddle.exitTime = 0;
             transEmptyToCancelMiddle.duration = 0;
             transEmptyToCancelMiddle.hasExitTime = false;
             transEmptyToCancelMiddle.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeMiddleClose");
-            EditorUtility.SetDirty(transEmptyToCancelMiddle);
+
 
             //EmptyToCancelLong
             var transEmptyToCancelLong = stateEmpty.AddTransition(stateCancelLong);
@@ -168,7 +263,6 @@ namespace UIset.util
             transEmptyToCancelLong.duration = 0;
             transEmptyToCancelLong.hasExitTime = false;
             transEmptyToCancelLong.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeLongClose");
-            EditorUtility.SetDirty(transEmptyToCancelLong);
 
             //EmptyToSelect
             var transEmptyToSelect = stateEmpty.AddTransition(stateSelect);
@@ -176,7 +270,7 @@ namespace UIset.util
             transEmptyToSelect.duration = 0;
             transEmptyToSelect.hasExitTime = false;
             transEmptyToSelect.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeOpen");
-            EditorUtility.SetDirty(transEmptyToSelect);
+
 
             //EmptyToSelectMiddle
             var transEmptyToSelectMiddle = stateEmpty.AddTransition(stateSelectMiddle);
@@ -184,7 +278,7 @@ namespace UIset.util
             transEmptyToSelectMiddle.duration = 0;
             transEmptyToSelectMiddle.hasExitTime = false;
             transEmptyToSelectMiddle.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeMiddleOpen");
-            EditorUtility.SetDirty(transEmptyToSelectMiddle);
+
 
             //EmptyToSelectLong
             var transEmptyToSelectLong = stateEmpty.AddTransition(stateSelectLong);
@@ -192,7 +286,7 @@ namespace UIset.util
             transEmptyToSelectLong.duration = 0;
             transEmptyToSelectLong.hasExitTime = false;
             transEmptyToSelectLong.AddCondition(AnimatorConditionMode.If, 1f, "CoolTimeLongOpen");
-            EditorUtility.SetDirty(transEmptyToSelectLong);
+
 
             //CancelToALLON
             var transCancelToALLON = stateCancel.AddTransition(stateALLON);
@@ -201,7 +295,7 @@ namespace UIset.util
             transCancelToALLON.hasFixedDuration = true;
             transCancelToALLON.duration = 0;
             transCancelToALLON.offset = 0;
-            EditorUtility.SetDirty(transCancelToALLON);
+
 
             //CancelMiddleToALLON
             var transCancelMiddleToALLON = stateCancelMiddle.AddTransition(stateALLON);
@@ -210,7 +304,6 @@ namespace UIset.util
             transCancelMiddleToALLON.hasFixedDuration = true;
             transCancelMiddleToALLON.duration = 0;
             transCancelMiddleToALLON.offset = 0;
-            EditorUtility.SetDirty(transCancelMiddleToALLON);
 
             //CancelLongToALLON
             var transCancelLongToALLON = stateCancelLong.AddTransition(stateALLON);
@@ -219,7 +312,7 @@ namespace UIset.util
             transCancelLongToALLON.hasFixedDuration = true;
             transCancelLongToALLON.duration = 0;
             transCancelLongToALLON.offset = 0;
-            EditorUtility.SetDirty(transCancelLongToALLON);
+
 
             //SelectToALLON
             var transSelectToALLON = stateSelect.AddTransition(stateALLON);
@@ -228,7 +321,7 @@ namespace UIset.util
             transSelectToALLON.hasFixedDuration = true;
             transSelectToALLON.duration = 0;
             transSelectToALLON.offset = 0;
-            EditorUtility.SetDirty(transSelectToALLON);
+
 
             //SelectMiddleToALLON
             var transSelectMiddleToALLON = stateSelectMiddle.AddTransition(stateALLON);
@@ -237,7 +330,7 @@ namespace UIset.util
             transSelectMiddleToALLON.hasFixedDuration = true;
             transSelectMiddleToALLON.duration = 0;
             transSelectMiddleToALLON.offset = 0;
-            EditorUtility.SetDirty(transSelectMiddleToALLON);
+
 
             //SelectLongToALLON
             var transSelectLongToALLON = stateSelectLong.AddTransition(stateALLON);
@@ -246,7 +339,7 @@ namespace UIset.util
             transSelectLongToALLON.hasFixedDuration = true;
             transSelectLongToALLON.duration = 0;
             transSelectLongToALLON.offset = 0;
-            EditorUtility.SetDirty(transSelectLongToALLON);
+
 
             //ALLONtoEmpty
             var transALLONToEmpty = stateALLON.AddTransition(stateEmpty);
@@ -255,8 +348,17 @@ namespace UIset.util
             transALLONToEmpty.hasFixedDuration = true;
             transALLONToEmpty.duration = 0;
             transALLONToEmpty.offset = 0;
-            EditorUtility.SetDirty(transALLONToEmpty);
 
+            //永続化
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateALLON);
+            EditorUtility.SetDirty(stateSelect);
+            EditorUtility.SetDirty(stateSelectMiddle);
+            EditorUtility.SetDirty(stateSelectLong);
+            EditorUtility.SetDirty(stateCancel);
+            EditorUtility.SetDirty(stateCancelMiddle);
+            EditorUtility.SetDirty(stateCancelLong);
+            EditorUtility.SetDirty(SoundLayer.stateMachine);
 
         }
 
@@ -276,6 +378,10 @@ namespace UIset.util
             };
             FXController.AddLayer(contactLayer);
 
+            //ハイドしてからAddObjectTOAssetで
+            contactLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
+            AssetDatabase.AddObjectToAsset(contactLayer.stateMachine, controllerPass);
+
             //ボタン用アニメーション
             AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
             AnimationClip animeON = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/" + process + "ON.anim", typeof(AnimationClip)) as AnimationClip;
@@ -294,11 +400,6 @@ namespace UIset.util
             var stateContactOFF = contactLayer.stateMachine.AddState("contactOFF", new Vector3(550, 240, 0));
             stateContactOFF.motion = animeEmpty;
             stateContactOFF.writeDefaultValues = writeDefault;
-
-            //編集したものにSetDirty
-            EditorUtility.SetDirty(stateEmpty);
-            EditorUtility.SetDirty(stateContactON);
-            EditorUtility.SetDirty(stateContactOFF);
 
 
             //コンタクトONにドライバパラメータ追加
@@ -338,7 +439,6 @@ namespace UIset.util
                     value = 1f
                 });
             }
-            EditorUtility.SetDirty(driverContactON);
 
 
             //コンタクトOFFにドライバパラメータ追加
@@ -397,7 +497,6 @@ namespace UIset.util
 
             }
 
-            EditorUtility.SetDirty(driverContactOFF);
 
 
 
@@ -408,7 +507,6 @@ namespace UIset.util
             transEmptyToON.hasExitTime = false;
             transEmptyToON.AddCondition(AnimatorConditionMode.If, 1f, process + "Contact");
             transEmptyToON.AddCondition(AnimatorConditionMode.IfNot, 1f, process + "Toggle");
-            EditorUtility.SetDirty(transEmptyToON);
 
             var transEmptyToOFF = stateEmpty.AddTransition(stateContactOFF);
             transEmptyToOFF.exitTime = 0;
@@ -416,21 +514,24 @@ namespace UIset.util
             transEmptyToOFF.hasExitTime = false;
             transEmptyToOFF.AddCondition(AnimatorConditionMode.If, 1f, process + "Contact");
             transEmptyToOFF.AddCondition(AnimatorConditionMode.If, 1f, process + "Toggle");
-            EditorUtility.SetDirty(transEmptyToOFF);
 
             var transContactONToExit = stateContactON.AddExitTransition();
             transContactONToExit.exitTime = 0;
             transContactONToExit.duration = 0;
             transContactONToExit.hasExitTime = false;
             transContactONToExit.AddCondition(AnimatorConditionMode.IfNot, 1f, process + "Contact");
-            EditorUtility.SetDirty(transContactONToExit);
 
             var transContactOFFToExit = stateContactOFF.AddExitTransition();
             transContactOFFToExit.exitTime = 0;
             transContactOFFToExit.duration = 0;
             transContactOFFToExit.hasExitTime = false;
             transContactOFFToExit.AddCondition(AnimatorConditionMode.IfNot, 1f, process + "Contact");
-            EditorUtility.SetDirty(transContactOFFToExit);
+
+
+            //永続化
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateContactOFF);
+            EditorUtility.SetDirty(stateContactON);
 
         }
 
@@ -451,6 +552,9 @@ namespace UIset.util
                 stateMachine = new AnimatorStateMachine()
             };
             FXController.AddLayer(contactLayer);
+            //ハイドしてからAddObjectTOAssetで
+            contactLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
+            AssetDatabase.AddObjectToAsset(contactLayer.stateMachine, controllerPass);
 
             //ボタン用アニメーション
             AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
@@ -471,9 +575,6 @@ namespace UIset.util
             stateContactOFF.motion = animeEmpty;
             stateContactOFF.writeDefaultValues = writeDefault;
             //編集したものにSetDirty
-            EditorUtility.SetDirty(stateEmpty);
-            EditorUtility.SetDirty(stateContactON);
-            EditorUtility.SetDirty(stateContactOFF);
 
 
             //コンタクトONにドライバパラメータ追加
@@ -491,7 +592,6 @@ namespace UIset.util
                 value = 1f
             });
             driverContactON.localOnly = true;
-            EditorUtility.SetDirty(driverContactON);
 
             //コンタクトOFFにドライバパラメータ追加
             var driverContactOFF = stateContactOFF.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
@@ -538,6 +638,12 @@ namespace UIset.util
             transContactOFFToExit.hasExitTime = false;
             transContactOFFToExit.AddCondition(AnimatorConditionMode.IfNot, 1f, process + "Object" + count + "Contact");
 
+            //永続化
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateContactOFF);
+            EditorUtility.SetDirty(stateContactON);
+
+
         }
 
 
@@ -558,6 +664,9 @@ namespace UIset.util
             toggleLayer.stateMachine.exitPosition = new Vector3(1100, 120, 0);
 
             FXController.AddLayer(toggleLayer);
+            //ハイドしてからAddObjectTOAssetで
+            toggleLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
+            AssetDatabase.AddObjectToAsset(toggleLayer.stateMachine, controllerPass);
 
             //emptyアニメ
             AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
@@ -611,6 +720,12 @@ namespace UIset.util
             transButtonOFFToButtonON.hasExitTime = false;
             transButtonOFFToButtonON.AddCondition(AnimatorConditionMode.If, 1f, process + "Toggle");
 
+            //永続化
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateButtonOFF);
+            EditorUtility.SetDirty(stateButtonON);
+
+
         }
 
         /// <summary>
@@ -630,6 +745,9 @@ namespace UIset.util
             toggleLayer.stateMachine.exitPosition = new Vector3(1100, 120, 0);
 
             FXController.AddLayer(toggleLayer);
+            //ハイドしてからAddObjectTOAssetで
+            toggleLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
+            AssetDatabase.AddObjectToAsset(toggleLayer.stateMachine, controllerPass);
 
             //emptyアニメ
             AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
@@ -682,6 +800,11 @@ namespace UIset.util
             transButtonOFFToButtonON.hasExitTime = false;
             transButtonOFFToButtonON.AddCondition(AnimatorConditionMode.Equals, count, process + "ObjectInt");
 
+            //永続化
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateButtonOFF);
+            EditorUtility.SetDirty(stateButtonON);
+
         }
 
 
@@ -702,6 +825,9 @@ namespace UIset.util
             toggleLayer.stateMachine.exitPosition = new Vector3(1100, 120, 0);
 
             FXController.AddLayer(toggleLayer);
+            //ハイドしてからAddObjectTOAssetで
+            toggleLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
+            AssetDatabase.AddObjectToAsset(toggleLayer.stateMachine, controllerPass);
 
             //emptyアニメ
             AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
@@ -769,6 +895,13 @@ namespace UIset.util
             transButtonOFFToButtonON.hasExitTime = false;
             transButtonOFFToButtonON.AddCondition(AnimatorConditionMode.If, 1f, process + "Toggle");
 
+            //永続化
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateDefaultOFF);
+            EditorUtility.SetDirty(stateDefaultON);
+            EditorUtility.SetDirty(stateButtonOFF);
+            EditorUtility.SetDirty(stateButtonON);
+
         }
 
         /// <summary>
@@ -790,6 +923,9 @@ namespace UIset.util
             toggleLayer.stateMachine.exitPosition = new Vector3(1100, 120, 0);
 
             FXController.AddLayer(toggleLayer);
+            //ハイドしてからAddObjectTOAssetで
+            toggleLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
+            AssetDatabase.AddObjectToAsset(toggleLayer.stateMachine, controllerPass);
 
             //emptyアニメ
             AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
@@ -857,6 +993,13 @@ namespace UIset.util
             transButtonOFFToButtonON.duration = 0;
             transButtonOFFToButtonON.hasExitTime = false;
             transButtonOFFToButtonON.AddCondition(AnimatorConditionMode.Equals, count, process + "ObjectInt");
+
+            //永続化
+            EditorUtility.SetDirty(stateEmpty);
+            EditorUtility.SetDirty(stateDefaultOFF);
+            EditorUtility.SetDirty(stateDefaultON);
+            EditorUtility.SetDirty(stateButtonOFF);
+            EditorUtility.SetDirty(stateButtonON);
 
         }
 
