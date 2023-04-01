@@ -38,7 +38,6 @@ namespace UIset
                 if (!Directory.Exists(avatarSettingInfoPath + "/" + avatarName))
                 {
                     Directory.CreateDirectory(avatarSettingInfoPath + "/" + avatarName);
-
                 }
 
                 string destinationPath = avatarSettingInfoPath + "/" + avatarName + "/Material";
@@ -61,6 +60,7 @@ namespace UIset
                 string json = JsonReader.ReadJson("Assets/UIset/Editor/UIsetInfo.json");
                 JObject jsonObj = JObject.Parse(json);
                 AddLayer ad = new AddLayer();
+                ad.setPass(controllerPath);
 
 
                 //初期表示レイヤー

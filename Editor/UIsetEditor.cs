@@ -34,9 +34,6 @@ namespace UIset
         private VRCAvatarDescriptor avatarDescriptor;
         private GameObject avatarObject;
 
-        //バグのもとなのでwriteDefaultはfalseで
-        bool writeDefault = false;
-
         //スクロール用
         private Vector2 _scrollPosition = Vector2.zero;
         //トグルウィンドウ用
