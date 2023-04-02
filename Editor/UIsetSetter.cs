@@ -52,9 +52,9 @@ public class UIsetSetter : UnityEditor.EditorWindow
     private void OnGUI()
     {
         avatarObject = EditorGUILayout.ObjectField("AvatarName", avatarObject, typeof(GameObject), true) as GameObject;
-        avatarDescriptor = new VRCAvatarDescriptor();
 
         //window表示
+        EditorGUILayout.BeginVertical();
         GUILayout.Space(20);
         GUILayout.Label("設定したいアバターをセットしてください", EditorStyles.boldLabel);
         GUILayout.Space(20);

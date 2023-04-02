@@ -48,9 +48,7 @@ namespace UIset
         //defaultON用
         private List<bool> _checkboxDefaultON = new List<bool>();
 
-        ObjectReader or = new ObjectReader();
 
-        LayarViewer lv = new LayarViewer();
 
         // メニュー
         private static void ShowWindow()
@@ -72,6 +70,8 @@ namespace UIset
         private void OnGUI()
         {
             string avatarName = avatarObject.name;
+            ObjectReader or = new ObjectReader();
+            LayarViewer lv = new LayarViewer();
 
             //コントローラー名(~~~UIsetアバター名で)
             string controllerPath = avatarSettingInfoPath + "/" + avatarName + "/" + avatarName + ".controller";

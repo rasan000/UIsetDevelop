@@ -63,6 +63,8 @@ namespace UIset
                 ad.setPass(controllerPath);
 
 
+
+
                 //初期表示レイヤー
                 AnimationClip animeNormarized = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Normarized.anim", typeof(AnimationClip)) as AnimationClip;
                 AnimatorControllerLayer NormarizedLayer = new AnimatorControllerLayer
@@ -75,6 +77,9 @@ namespace UIset
                 stateNormarized.writeDefaultValues = writeDefault;
                 stateNormarized.motion = animeNormarized;
                 animatorController.AddLayer(NormarizedLayer);
+                NormarizedLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
+                AssetDatabase.AddObjectToAsset(NormarizedLayer.stateMachine, controllerPath);
+                EditorUtility.SetDirty(stateNormarized);
 
 
 
