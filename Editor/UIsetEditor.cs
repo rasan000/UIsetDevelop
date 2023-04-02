@@ -71,6 +71,7 @@ namespace UIset
         {
             string avatarName = avatarObject.name;
             ObjectReader or = new ObjectReader();
+
             LayarViewer lv = new LayarViewer();
 
             //コントローラー名(~~~UIsetアバター名で)
@@ -85,6 +86,24 @@ namespace UIset
 
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("1.ボタンに登録したいアニメを設定してください", EditorStyles.boldLabel);
+
+
+
+
+            //アニメーション作成ボタンの説明
+            string labelText = "※オブジェクトを直接設定したい場合は、各xxxObject一番下のボックスに対象のオブジェクトを入れた後、アニメーション作成ボタンを押してください";
+            GUIStyle labelStyle = new GUIStyle(EditorStyles.label);
+            labelStyle.wordWrap = true;
+            labelStyle.fontSize = 10;
+            EditorGUILayout.LabelField(labelText, labelStyle, GUILayout.ExpandWidth(true), GUILayout.Width(EditorGUIUtility.currentViewWidth - 10));
+            labelText = "※既にオブジェクトと同じ名前のアニメーションが作られている時は、自動でセットされます（名前が違う場合は別のオブジェクトとみなされます";
+            EditorGUILayout.LabelField(labelText, labelStyle, GUILayout.ExpandWidth(true), GUILayout.Width(EditorGUIUtility.currentViewWidth - 10));
+            EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
+            //フォントサイズをもとに戻す
+            labelStyle.fontSize = 12;
+
+
+
 
             //スクロールウィンドウ
             //メインメニュー
