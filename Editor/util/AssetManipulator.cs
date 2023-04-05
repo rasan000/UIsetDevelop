@@ -1,6 +1,7 @@
 
 using System;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 namespace UIset.util
@@ -28,7 +29,7 @@ namespace UIset.util
             foreach (string filePath in Directory.GetFiles(sourcePath))
             {
                 string destinationFilePath = Path.Combine(destinationPath, Path.GetFileName(filePath));
-                File.Copy(filePath, destinationFilePath, true);
+                AssetDatabase.CopyAsset(filePath, destinationFilePath);
             }
 
             // サブディレクトリを再帰的にコピーします。
@@ -37,8 +38,7 @@ namespace UIset.util
                 string destinationSubDirectory = Path.Combine(destinationPath, Path.GetFileName(subDirectory));
                 CopyDirectoryRecursive(subDirectory, destinationSubDirectory);
             }
+            AssetDatabase.Refresh();
         }
-
-
     }
 }
