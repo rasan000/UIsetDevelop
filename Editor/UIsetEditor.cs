@@ -48,7 +48,8 @@ namespace UIset
         //defaultON用
         private List<bool> _checkboxDefaultON = new List<bool>();
 
-
+        //アニメーション作成用
+        private Dictionary<string, GameObject> _gameObjectDict = new Dictionary<string, GameObject>();
 
         // メニュー
         private static void ShowWindow()
@@ -73,6 +74,7 @@ namespace UIset
             ObjectReader or = new ObjectReader();
 
             LayarViewer lv = new LayarViewer();
+            lv.SetDict(_gameObjectDict);
 
             //コントローラー名(~~~UIsetアバター名で)
             string controllerPath = avatarSettingInfoPath + "/" + avatarName + "/" + avatarName + ".controller";
@@ -86,8 +88,6 @@ namespace UIset
 
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("1.ボタンに登録したいアニメを設定してください", EditorStyles.boldLabel);
-
-
 
 
             //アニメーション作成ボタンの説明
@@ -104,13 +104,12 @@ namespace UIset
 
 
 
-
             //スクロールウィンドウ
             //メインメニュー
             Color originalContentColor = GUI.contentColor;
             GUI.contentColor = Color.white;
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
-            EditorGUILayout.TextField("※アバター正面のメニューです。", EditorStyles.miniLabel);
+            //EditorGUILayout.TextField("※アバター正面のメニューです。", EditorStyles.miniLabel);
             _toggleMainMenu = EditorGUILayout.Foldout(_toggleMainMenu, "MainMenu");
             GUI.contentColor = originalContentColor;
             if (_toggleMainMenu)
@@ -118,8 +117,10 @@ namespace UIset
                 lv.ShowLayerAnimations(animatorController, "Main", avatarObject);
             }
             GUILayout.Space(20);
+
+
             //サブメニュ－１
-            EditorGUILayout.TextField("※アバターから向かって上のメニューです。", EditorStyles.miniLabel);
+            //EditorGUILayout.TextField("※アバターから向かって上のメニューです。", EditorStyles.miniLabel);
             GUI.contentColor = Color.red;
             _toggleSub1Menu = EditorGUILayout.Foldout(_toggleSub1Menu, "Sub1Menu");
             GUI.contentColor = originalContentColor;
@@ -131,9 +132,8 @@ namespace UIset
 
 
             //サブメニュ－２
-            EditorGUILayout.TextField("※アバターから向かって右のメニューです。このレイヤーはいずれか一つだけ選択されます", EditorStyles.miniLabel);
             GUI.contentColor = Color.cyan;
-            _toggleSub2Menu = EditorGUILayout.Foldout(_toggleSub2Menu, "Sub2Menu");
+            _toggleSub2Menu = EditorGUILayout.Foldout(_toggleSub2Menu, "Sub2Menu ※このレイヤーはいずれか一つだけ選択されます");
             GUI.contentColor = originalContentColor;
             //defaultIntの設定
             ModularAvatarParameters MAMergeIntParameters = avatarObject.transform.Find("UIset").GetComponent<ModularAvatarParameters>();
@@ -204,7 +204,7 @@ namespace UIset
             GUILayout.Space(20);
 
             //サブメニュ－３
-            EditorGUILayout.TextField("※アバターから向かって左のメニューです。", EditorStyles.miniLabel);
+            //EditorGUILayout.TextField("※アバターから向かって左のメニューです。", EditorStyles.miniLabel);
             GUI.contentColor = Color.green;
             _toggleSub3Menu = EditorGUILayout.Foldout(_toggleSub3Menu, "Sub3Menu");
             GUI.contentColor = originalContentColor;
