@@ -39,6 +39,7 @@ public class UIsetSetter : UnityEditor.EditorWindow
 
     LayarViewer lv = new LayarViewer();
 
+
     // メニュー
     [MenuItem("UIset/UIsetEditor")]
     private static void ShowWindow()
@@ -182,7 +183,6 @@ public class UIsetSetter : UnityEditor.EditorWindow
                 if (avatarDescriptor == null && createControlerButton)
                 {
                     EditorUtility.DisplayDialog("Error", "アバターがセットされていません", "戻る");
-                    Debug.LogErrorFormat("アバターをセットしてください");
                     return;
                 }
 
