@@ -240,6 +240,7 @@ namespace UIset.Layar
                                 //アニメーション作成とセット
                                 ac.CreateAnimation(_gameObjectDict[layer.name], avatarObject);
 
+
                                 foreach (ChildAnimatorState state in layer.stateMachine.states)
                                 {
                                     if (state.state.name.Contains("ButtonON"))
@@ -251,7 +252,6 @@ namespace UIset.Layar
                                     {
 
                                         state.state.motion = aseter.SetAnimation(_gameObjectDict[layer.name], avatarObject, "OFF"); ;
-
                                     }
                                 }
                             }

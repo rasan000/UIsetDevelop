@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -22,10 +23,20 @@ namespace UIset.Animation
             AnimationClip animClip = null;
             if (toggle == "ON")
             {
+                if (!File.Exists(saveAnimClipPath + "/UIS" + gameObject.name + "_ON.anim"))
+                {
+                    EditorUtility.DisplayDialog("Error", "アニメーションが見つかりませんでした", "戻る");
+                    return null;
+                }
                 animClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(saveAnimClipPath + "/UIS" + gameObject.name + "_ON.anim");
             }
             else if (toggle == "OFF")
             {
+                if (!File.Exists(saveAnimClipPath + "/UIS" + gameObject.name + "_OFF.anim"))
+                {
+                    EditorUtility.DisplayDialog("Error", "アニメーションが見つかりませんでした", "戻る");
+                    return null;
+                }
                 animClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(saveAnimClipPath + "/UIS" + gameObject.name + "_OFF.anim");
             }
             return animClip;

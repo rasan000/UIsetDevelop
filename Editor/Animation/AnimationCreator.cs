@@ -43,15 +43,18 @@ namespace UIset.Animation
             offClip.name = gameObject.name + "_OFF";
             if (!File.Exists(saveAnimClipPath + "/UIS" + onClip.name + ".anim"))
             {
-                onClip.SetCurve(GetPath(avatarObject, gameObject), typeof(GameObject), "m_IsActive", AnimationCurve.Constant(0, 1, 1));
-
+                onClip.SetCurve(GetPath(avatarObject, gameObject), typeof(GameObject), "m_IsActive", AnimationCurve.Constant(0, 0.1f, 1));
             }
             if (!File.Exists(saveAnimClipPath + "/UIS" + offClip.name + ".anim"))
             {
-                offClip.SetCurve(GetPath(avatarObject, gameObject), typeof(GameObject), "m_IsActive", AnimationCurve.Constant(0, 1, 1));
+                offClip.SetCurve(GetPath(avatarObject, gameObject), typeof(GameObject), "m_IsActive", AnimationCurve.Constant(0, 0.1f, 0));
             }
-            AssetDatabase.CreateAsset(onClip, "Assets/" + onClip.name + ".anim");
-            AssetDatabase.CreateAsset(offClip, "Assets/" + offClip.name + ".anim");
+
+            //再生成
+            AssetDatabase.DeleteAsset(saveAnimClipPath + "/UIS" + onClip.name + ".anim");
+            AssetDatabase.DeleteAsset(saveAnimClipPath + "/UIS" + offClip.name + ".anim");
+            AssetDatabase.CreateAsset(onClip, saveAnimClipPath + "/UIS" + onClip.name + ".anim");
+            AssetDatabase.CreateAsset(offClip, saveAnimClipPath + "/UIS" + offClip.name + ".anim");
             AssetDatabase.Refresh();
             return;
         }
