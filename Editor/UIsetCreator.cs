@@ -184,6 +184,11 @@ namespace UIset
                             MAMergeParameters.parameters[i] = tempParameter;
                         }
                     }
+
+                    //saveする
+                    GameObject saveObject = avatarObject.transform.Find("UIset").gameObject;
+                    PrefabUtility.SaveAsPrefabAsset(saveObject, avatarSettingInfoPath + "/" + avatarName + "/UIset.prefab");
+                    AssetDatabase.Refresh();
                 }
                 EditorUtility.DisplayDialog("Success", avatarName + "にUIsetをセットしました", "閉じる");
             }
