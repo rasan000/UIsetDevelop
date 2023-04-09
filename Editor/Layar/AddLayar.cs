@@ -649,10 +649,21 @@ namespace UIset.Layar
             toggleLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
             AssetDatabase.AddObjectToAsset(toggleLayer.stateMachine, controllerPass);
 
+            AnimationClip animeButtonON = new AnimationClip();
+            AnimationClip animeButtonOFF = new AnimationClip();
             //emptyアニメ
             AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
-            AnimationClip animeButtonON = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/" + process + "ON.anim", typeof(AnimationClip)) as AnimationClip;
-            AnimationClip animeButtonOFF = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/" + process + "OFF.anim", typeof(AnimationClip)) as AnimationClip;
+            if (process.Contains("Object"))
+            {
+                animeButtonON = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/" + process + "ON.anim", typeof(AnimationClip)) as AnimationClip;
+                animeButtonOFF = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/" + process + "OFF.anim", typeof(AnimationClip)) as AnimationClip;
+            }
+            else
+            {
+                animeButtonON = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/" + process + "Object" + count + "ON.anim", typeof(AnimationClip)) as AnimationClip;
+                animeButtonOFF = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/" + process + "Object" + count + "OFF.anim", typeof(AnimationClip)) as AnimationClip;
+            }
+
 
 
             //アニメーションステート[0]：Empty　追加
