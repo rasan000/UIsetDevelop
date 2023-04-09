@@ -51,133 +51,138 @@ namespace UIset
                 }
 
 
-                //アバター用のコントローラー作成
-                AnimatorController animatorController = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
-
-
-
-                //メニュー用のプロパティセット(Jsonで保存)
-                string json = JsonReader.ReadJson("Assets/UIset/Editor/UIsetInfo.json");
-                JObject jsonObj = JObject.Parse(json);
-                AddLayer ad = new AddLayer();
-                ad.setPass(controllerPath);
-
-
-
-
-                //初期表示レイヤー
-                AnimationClip animeNormarized = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Normarized.anim", typeof(AnimationClip)) as AnimationClip;
-                AnimatorControllerLayer NormarizedLayer = new AnimatorControllerLayer
+                //コントローラーがない場合アバター用のコントローラー作成
+                if (!File.Exists(controllerPath))
                 {
-                    name = "NormarizedLayer",
-                    defaultWeight = 1,
-                    stateMachine = new AnimatorStateMachine()
-                };
-                var stateNormarized = NormarizedLayer.stateMachine.AddState("Normarized");
-                stateNormarized.writeDefaultValues = writeDefault;
-                stateNormarized.motion = animeNormarized;
-                animatorController.AddLayer(NormarizedLayer);
-                NormarizedLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
-                AssetDatabase.AddObjectToAsset(NormarizedLayer.stateMachine, controllerPath);
-                EditorUtility.SetDirty(stateNormarized);
+                    AnimatorController animatorController = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
 
 
 
-                //効果音レイヤー
-                ad.CreateSoundLayer(animatorController, writeDefault);
 
-                //コントローラー作成
-                foreach (string property in jsonObj["UIsetInfo"]["Property"])
-                {
-                    animatorController.AddParameter(property + "Contact", AnimatorControllerParameterType.Bool);
-                    animatorController.AddParameter(property + "Toggle", AnimatorControllerParameterType.Bool);
-                    ad.CreateContactLayer(animatorController, property, writeDefault);
-                    ad.CreateToggleLayer(animatorController, property, writeDefault);
-                }
 
-                foreach (string menuList in jsonObj["UIsetInfo"]["MenuList"])
-                {
-                    animatorController.AddParameter(menuList + "Contact", AnimatorControllerParameterType.Bool);
-                    animatorController.AddParameter(menuList + "Toggle", AnimatorControllerParameterType.Bool);
-                    ad.CreateContactLayer(animatorController, menuList, writeDefault);
-                    ad.CreateToggleLayer(animatorController, menuList, writeDefault);
-                }
+                    //メニュー用のプロパティセット(Jsonで保存)
+                    string json = JsonReader.ReadJson("Assets/UIset/Editor/UIsetInfo.json");
+                    JObject jsonObj = JObject.Parse(json);
+                    AddLayer ad = new AddLayer();
+                    ad.setPass(controllerPath);
 
-                foreach (JObject layarInfo in jsonObj["UIsetInfo"]["LayerList"])
-                {
-                    string layarName = (string)layarInfo["LayerName"];
 
-                    //トグル用レイヤーのとき
-                    if ((string)layarInfo["Category"] == "Toggle")
+
+
+                    //初期表示レイヤー
+                    AnimationClip animeNormarized = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Normarized.anim", typeof(AnimationClip)) as AnimationClip;
+                    AnimatorControllerLayer NormarizedLayer = new AnimatorControllerLayer
                     {
-                        for (int count = 1; count <= int.Parse((string)layarInfo["Count"]); count++)
+                        name = "NormarizedLayer",
+                        defaultWeight = 1,
+                        stateMachine = new AnimatorStateMachine()
+                    };
+                    var stateNormarized = NormarizedLayer.stateMachine.AddState("Normarized");
+                    stateNormarized.writeDefaultValues = writeDefault;
+                    stateNormarized.motion = animeNormarized;
+                    animatorController.AddLayer(NormarizedLayer);
+                    NormarizedLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
+                    AssetDatabase.AddObjectToAsset(NormarizedLayer.stateMachine, controllerPath);
+                    EditorUtility.SetDirty(stateNormarized);
+
+
+
+                    //効果音レイヤー
+                    ad.CreateSoundLayer(animatorController, writeDefault);
+
+                    //コントローラー作成
+                    foreach (string property in jsonObj["UIsetInfo"]["Property"])
+                    {
+                        animatorController.AddParameter(property + "Contact", AnimatorControllerParameterType.Bool);
+                        animatorController.AddParameter(property + "Toggle", AnimatorControllerParameterType.Bool);
+                        ad.CreateContactLayer(animatorController, property, writeDefault);
+                        ad.CreateToggleLayer(animatorController, property, writeDefault);
+                    }
+
+                    foreach (string menuList in jsonObj["UIsetInfo"]["MenuList"])
+                    {
+                        animatorController.AddParameter(menuList + "Contact", AnimatorControllerParameterType.Bool);
+                        animatorController.AddParameter(menuList + "Toggle", AnimatorControllerParameterType.Bool);
+                        ad.CreateContactLayer(animatorController, menuList, writeDefault);
+                        ad.CreateToggleLayer(animatorController, menuList, writeDefault);
+                    }
+
+                    foreach (JObject layarInfo in jsonObj["UIsetInfo"]["LayerList"])
+                    {
+                        string layarName = (string)layarInfo["LayerName"];
+
+                        //トグル用レイヤーのとき
+                        if ((string)layarInfo["Category"] == "Toggle")
                         {
-                            animatorController.AddParameter(layarName + "Object" + count + "Contact", AnimatorControllerParameterType.Bool);
-                            animatorController.AddParameter(layarName + "Object" + count + "Toggle", AnimatorControllerParameterType.Bool);
-                            ad.CreateContactLayer(animatorController, layarName + "Object" + count, writeDefault);
-                            ad.CreateToggleLayer(animatorController, layarName + "Object" + count, writeDefault);
-                            ad.CreateObjectLayer(animatorController, layarName + "Object" + count, writeDefault);
+                            for (int count = 1; count <= int.Parse((string)layarInfo["Count"]); count++)
+                            {
+                                animatorController.AddParameter(layarName + "Object" + count + "Contact", AnimatorControllerParameterType.Bool);
+                                animatorController.AddParameter(layarName + "Object" + count + "Toggle", AnimatorControllerParameterType.Bool);
+                                ad.CreateContactLayer(animatorController, layarName + "Object" + count, writeDefault);
+                                ad.CreateToggleLayer(animatorController, layarName + "Object" + count, writeDefault);
+                                ad.CreateObjectLayer(animatorController, layarName + "Object" + count, writeDefault);
+                            }
                         }
-                    }
-                    //排他的レイヤーのとき
-                    else
-                    {
-                        animatorController.AddParameter(layarName + "ObjectInt", AnimatorControllerParameterType.Int);
-                        for (int count = 1; count <= int.Parse((string)layarInfo["Count"]); count++)
+                        //排他的レイヤーのとき
+                        else
                         {
-                            animatorController.AddParameter(layarName + "Object" + count + "Contact", AnimatorControllerParameterType.Bool);
-                            ad.CreateContactLayerInt(animatorController, layarName, count, writeDefault);
-                            ad.CreateToggleLayerInt(animatorController, layarName, count, writeDefault);
-                            ad.CreateObjectLayerInt(animatorController, layarName, count, writeDefault);
+                            animatorController.AddParameter(layarName + "ObjectInt", AnimatorControllerParameterType.Int);
+                            for (int count = 1; count <= int.Parse((string)layarInfo["Count"]); count++)
+                            {
+                                animatorController.AddParameter(layarName + "Object" + count + "Contact", AnimatorControllerParameterType.Bool);
+                                ad.CreateContactLayerInt(animatorController, layarName, count, writeDefault);
+                                ad.CreateToggleLayerInt(animatorController, layarName, count, writeDefault);
+                                ad.CreateObjectLayerInt(animatorController, layarName, count, writeDefault);
+                            }
                         }
-                    }
 
-                }
-
-
-                //UIsetの各ボタンをアバター専用のマテリアルに変更
-                foreach (string property in jsonObj["UIsetButtonList"])
-                {
-                    GameObject searchObject = avatarObject.transform.Find("UIset").gameObject;
-                    GameObject mesh = or.FindGameObjectByName(searchObject, property + "Mesh");
-                    Material setMaterial = AssetDatabase.LoadAssetAtPath(destinationPath + "/" + property + ".mat", typeof(Material)) as Material;
-                    if (mesh != null)
-                    {
-                        mesh.GetComponent<SkinnedMeshRenderer>().material = setMaterial;
-                    }
-                    else
-                    {
-                        Debug.Log(property + "Meshは見つかりませんでした");
                     }
 
 
-                }
-
-
-                //MAMergeAnimatorの設定
-                ModularAvatarMergeAnimator MAMergeAnimator = prefabUIset.GetComponent<ModularAvatarMergeAnimator>();
-                MAMergeAnimator.animator = animatorController;
-                MAMergeAnimator.deleteAttachedAnimator = true;
-                MAMergeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
-                MAMergeAnimator.matchAvatarWriteDefaults = false;
-                //MAParamatersの設定
-                ModularAvatarParameters MAMergeParameters = prefabUIset.GetComponent<ModularAvatarParameters>();
-                //構造体なのでforeachは不可
-                ParameterConfig tempParameters = MAMergeParameters.parameters[0];
-                for (int i = 0; i < MAMergeParameters.parameters.Count; i++)
-                {
-                    if (MAMergeParameters.parameters[i].nameOrPrefix.Contains("Toggle"))
+                    //UIsetの各ボタンをアバター専用のマテリアルに変更
+                    foreach (string property in jsonObj["UIsetButtonList"])
                     {
-                        ParameterConfig tempParameter = MAMergeParameters.parameters[i];
-                        tempParameter.syncType = ParameterSyncType.Bool;
-                        MAMergeParameters.parameters[i] = tempParameter;
+                        GameObject searchObject = avatarObject.transform.Find("UIset").gameObject;
+                        GameObject mesh = or.FindGameObjectByName(searchObject, property + "Mesh");
+                        Material setMaterial = AssetDatabase.LoadAssetAtPath(destinationPath + "/" + property + ".mat", typeof(Material)) as Material;
+                        if (mesh != null)
+                        {
+                            mesh.GetComponent<SkinnedMeshRenderer>().material = setMaterial;
+                        }
+                        else
+                        {
+                            Debug.Log(property + "Meshは見つかりませんでした");
+                        }
+
+
                     }
-                    else if (MAMergeParameters.parameters[i].nameOrPrefix.Contains("Int"))
+
+
+                    //MAMergeAnimatorの設定
+                    ModularAvatarMergeAnimator MAMergeAnimator = prefabUIset.GetComponent<ModularAvatarMergeAnimator>();
+                    MAMergeAnimator.animator = animatorController;
+                    MAMergeAnimator.deleteAttachedAnimator = true;
+                    MAMergeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
+                    MAMergeAnimator.matchAvatarWriteDefaults = false;
+                    //MAParamatersの設定
+                    ModularAvatarParameters MAMergeParameters = prefabUIset.GetComponent<ModularAvatarParameters>();
+                    //構造体なのでforeachは不可
+                    ParameterConfig tempParameters = MAMergeParameters.parameters[0];
+                    for (int i = 0; i < MAMergeParameters.parameters.Count; i++)
                     {
-                        ParameterConfig tempParameter = MAMergeParameters.parameters[i];
-                        tempParameter.syncType = ParameterSyncType.Int;
-                        tempParameter.defaultValue = 1;
-                        MAMergeParameters.parameters[i] = tempParameter;
+                        if (MAMergeParameters.parameters[i].nameOrPrefix.Contains("Toggle"))
+                        {
+                            ParameterConfig tempParameter = MAMergeParameters.parameters[i];
+                            tempParameter.syncType = ParameterSyncType.Bool;
+                            MAMergeParameters.parameters[i] = tempParameter;
+                        }
+                        else if (MAMergeParameters.parameters[i].nameOrPrefix.Contains("Int"))
+                        {
+                            ParameterConfig tempParameter = MAMergeParameters.parameters[i];
+                            tempParameter.syncType = ParameterSyncType.Int;
+                            tempParameter.defaultValue = 1;
+                            MAMergeParameters.parameters[i] = tempParameter;
+                        }
                     }
                 }
                 EditorUtility.DisplayDialog("Success", avatarName + "にUIsetをセットしました", "閉じる");
