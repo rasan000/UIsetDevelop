@@ -38,12 +38,14 @@ public class UIsetSetter : UnityEditor.EditorWindow
     ObjectReader or = new ObjectReader();
 
     LayarViewer lv = new LayarViewer();
+    private object prefabUtility;
+
 
     // メニュー
     [MenuItem("UIset/UIsetEditor")]
     private static void ShowWindow()
     {
-        UIsetSetter window = GetWindowWithRect<UIsetSetter>(new Rect(0, 0, 450, 600));
+        UIsetSetter window = GetWindowWithRect<UIsetSetter>(new Rect(0, 0, 450, 700));
         window.Show();
     }
 
@@ -52,9 +54,9 @@ public class UIsetSetter : UnityEditor.EditorWindow
     private void OnGUI()
     {
         avatarObject = EditorGUILayout.ObjectField("AvatarName", avatarObject, typeof(GameObject), true) as GameObject;
-        avatarDescriptor = new VRCAvatarDescriptor();
 
         //window表示
+        EditorGUILayout.BeginVertical();
         GUILayout.Space(20);
         GUILayout.Label("設定したいアバターをセットしてください", EditorStyles.boldLabel);
         GUILayout.Space(20);
@@ -86,7 +88,7 @@ public class UIsetSetter : UnityEditor.EditorWindow
 
 
                 EditorGUILayout.Space(10);
-                EditorGUILayout.LabelField("1.各ボタンに登録したいアニメを設定してください", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("1.以下のボタンを押して、各ボタンに登録したいアニメを設定してください", EditorStyles.boldLabel);
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
                 bool openEditorWindowButton = GUILayout.Button("-------編集ウィンドウを開く---------", GUILayout.Width(300), GUILayout.Height(50));
@@ -154,21 +156,72 @@ public class UIsetSetter : UnityEditor.EditorWindow
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
 
+                //再設定と保存ボタン
+                EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("※以下のボタンから再設定と設定の保存ができます", EditorStyles.boldLabel);
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                //設定は上書き保存でprefabとして保持
+                if (GUILayout.Button("設定を保存する", GUILayout.Width(200), GUILayout.Height(30)))
+                {
+                    GameObject saveObject = avatarObject.transform.Find("UIset").gameObject;
+                    PrefabUtility.SaveAsPrefabAsset(saveObject, avatarSettingInfoPath + "/" + avatarName + "/UIset.prefab");
+                    AssetDatabase.Refresh();
+                    EditorUtility.DisplayDialog("Success", avatarName + "用の設定を保存しました", "戻る");
+                }
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
                 //再設定用にUIsetを表示する
                 if (GUILayout.Button("再設定する", GUILayout.Width(200), GUILayout.Height(30)))
                 {
-
                     UIObject.SetActive(true);
                     UIsetObject.SetActive(true);
                     ringObject.SetActive(true);
                 }
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
+
+
+                //削除ボタン
+                EditorGUILayout.LabelField("---------------------------------------------------------------", EditorStyles.boldLabel);
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                Color originalColor = GUI.backgroundColor;
+                GUI.backgroundColor = Color.red;
+                if (GUILayout.Button("設定を全て削除する", GUILayout.Width(200)))
+                {
+                    // ファイルは強制削除でSceaneの方も削除
+                    if (EditorUtility.DisplayDialog("設定を削除しますか？", "この操作は取り消せません。本当に削除しますか？", "はい", "いいえ"))
+                    {
+                        Directory.Delete(avatarSettingInfoPath + "/" + avatarName, true);
+                        DestroyImmediate(avatarObject.transform.Find("UIset").gameObject);
+                        AssetDatabase.Refresh();
+                        EditorUtility.DisplayDialog("Success", avatarName + "用の設定ファイルを削除しました", "戻る");
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("キャンセル？", "削除を取消しました", "戻る");
+                    }
+                }
+                GUI.backgroundColor = originalColor;
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+
+
+
+
                 EditorGUILayout.EndVertical();
 
             }
+
             else
             {
                 //ここからコントローラー生成
@@ -182,16 +235,26 @@ public class UIsetSetter : UnityEditor.EditorWindow
                 if (avatarDescriptor == null && createControlerButton)
                 {
                     EditorUtility.DisplayDialog("Error", "アバターがセットされていません", "戻る");
-                    Debug.LogErrorFormat("アバターをセットしてください");
                     return;
                 }
 
                 //セットされていれば生成開始
                 if (createControlerButton)
                 {
+                    //アバター用のUIsetがなければ作成
+                    if (!File.Exists(avatarSettingInfoPath + "/" + avatarName + "/UIset.prefab"))
+                    {
+                        //アバター用のフォルダがなければ作成する
+                        if (!Directory.Exists(avatarSettingInfoPath + "/" + avatarName))
+                        {
+                            Directory.CreateDirectory(avatarSettingInfoPath + "/" + avatarName);
+                        }
+
+                        AssetDatabase.CopyAsset("Assets/UIset/src/UIset.prefab", avatarSettingInfoPath + "/" + avatarName + "/UIset.prefab");
+                    }
                     //UIsetをアバター直下にセット
-                    GameObject prefabUIset = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/UIset.prefab", typeof(GameObject)) as GameObject;
-                    prefabUIset = Instantiate(prefabUIset);
+                    GameObject prefabUIset = AssetDatabase.LoadAssetAtPath(avatarSettingInfoPath + "/" + avatarName + "/UIset.prefab", typeof(GameObject)) as GameObject;
+                    prefabUIset = PrefabUtility.InstantiatePrefab(prefabUIset) as GameObject;
                     prefabUIset.name = "UIset";
                     prefabUIset.transform.SetParent(avatarObject.transform);
                     UIsetCreator uc = new UIsetCreator();

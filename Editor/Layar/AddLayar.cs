@@ -19,106 +19,6 @@ namespace UIset.Layar
             controllerPass = pass;
         }
 
-
-        //テスト用メソッド
-        public void CreateTestLayer(AnimatorController FXController, bool writeDefault)
-        {
-            AnimatorControllerLayer contactLayer = new AnimatorControllerLayer
-            {
-                name = "Test",
-                defaultWeight = 1,
-                stateMachine = new AnimatorStateMachine()
-            };
-            FXController.AddLayer(contactLayer);
-            //レイヤー追加時はHideFlagを付与し、AddObjectToAssetでアセットに追加
-            contactLayer.stateMachine.hideFlags = HideFlags.HideInHierarchy;
-            AssetDatabase.AddObjectToAsset(contactLayer.stateMachine, controllerPass);
-
-            //ボタン用アニメーション
-            AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
-            //アニメーションステート[0]：Empty　追加
-            var stateEmpty = contactLayer.stateMachine.AddState("Empty", new Vector3(300, 120, 0));
-            stateEmpty.motion = animeEmpty;
-            stateEmpty.writeDefaultValues = writeDefault;
-            //アニメーションステート[1]：contactON　
-            var stateContactON = contactLayer.stateMachine.AddState("contactON", new Vector3(550, 0, 0));
-            stateContactON.motion = animeEmpty;
-            stateContactON.writeDefaultValues = writeDefault;
-            //アニメーションステート[2]：contactOFF　
-            var stateContactOFF = contactLayer.stateMachine.AddState("contactOFF", new Vector3(550, 240, 0));
-            stateContactOFF.motion = animeEmpty;
-            stateContactOFF.writeDefaultValues = writeDefault;
-
-
-            //コンタクトONにドライバパラメータ追加
-            var driverContactON = stateContactON.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
-            driverContactON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
-            {
-                name = "Toggle",
-                type = VRC_AvatarParameterDriver.ChangeType.Set,
-                value = 1f
-            });
-            driverContactON.localOnly = true;
-
-
-            driverContactON.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
-            {
-                name = "CoolTimeLongOpen",
-                type = VRC_AvatarParameterDriver.ChangeType.Set,
-                value = 1f
-            });
-            EditorUtility.SetDirty(stateEmpty);
-            EditorUtility.SetDirty(stateContactOFF);
-            EditorUtility.SetDirty(stateContactON);
-            EditorUtility.SetDirty(contactLayer.stateMachine);
-
-            // //コンタクトOFFにドライバパラメータ追加
-            // var driverContactOFF = stateContactOFF.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
-            // driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
-            // {
-            //     name = "Toggle",
-            //     type = VRC_AvatarParameterDriver.ChangeType.Set,
-            //     value = 0
-            // });
-            // driverContactOFF.parameters.Add(new VRC_AvatarParameterDriver.Parameter()
-            // {
-            //     name = "CoolTimeMiddleClose",
-            //     type = VRC_AvatarParameterDriver.ChangeType.Set,
-            //     value = 1f
-            // });
-            // driverContactOFF.localOnly = true;
-
-            // //遷移を追加
-            // var transEmptyToON = stateEmpty.AddTransition(stateContactON);
-            // transEmptyToON.exitTime = 0;
-            // transEmptyToON.duration = 0;
-            // transEmptyToON.hasExitTime = false;
-            // transEmptyToON.AddCondition(AnimatorConditionMode.If, 1f, "Contact");
-            // transEmptyToON.AddCondition(AnimatorConditionMode.IfNot, 1f, "Toggle");
-
-            // var transEmptyToOFF = stateEmpty.AddTransition(stateContactOFF);
-            // transEmptyToOFF.exitTime = 0;
-            // transEmptyToOFF.duration = 0;
-            // transEmptyToOFF.hasExitTime = false;
-            // transEmptyToOFF.AddCondition(AnimatorConditionMode.If, 1f, "Contact");
-            // transEmptyToOFF.AddCondition(AnimatorConditionMode.If, 1f, "Toggle");
-
-            // var transContactONToExit = stateContactON.AddExitTransition();
-            // transContactONToExit.exitTime = 0;
-            // transContactONToExit.duration = 0;
-            // transContactONToExit.hasExitTime = false;
-            // transContactONToExit.AddCondition(AnimatorConditionMode.IfNot, 1f, "Contact");
-
-            // var transContactOFFToExit = stateContactOFF.AddExitTransition();
-            // transContactOFFToExit.exitTime = 0;
-            // transContactOFFToExit.duration = 0;
-            // transContactOFFToExit.hasExitTime = false;
-            // transContactOFFToExit.AddCondition(AnimatorConditionMode.IfNot, 1f, "Contact");
-
-
-
-        }
-
         /// <summary>
         /// CoolTime用のレイヤーを作成します
         /// </summary>
@@ -957,7 +857,6 @@ namespace UIset.Layar
             transEmptyToDefaultON.duration = 0;
             transEmptyToDefaultON.hasExitTime = false;
             transEmptyToDefaultON.AddCondition(AnimatorConditionMode.Equals, count, process + "ObjectInt");
-            Debug.Log(process + "ObjectInt");
 
             //defaultOFF
             var transEmptyToDefaultOFF = stateEmpty.AddTransition(stateDefaultOFF);

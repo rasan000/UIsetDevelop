@@ -48,9 +48,8 @@ namespace UIset
         //defaultON用
         private List<bool> _checkboxDefaultON = new List<bool>();
 
-        ObjectReader or = new ObjectReader();
-
-        LayarViewer lv = new LayarViewer();
+        //アニメーション作成用
+        private Dictionary<string, GameObject> _gameObjectDict = new Dictionary<string, GameObject>();
 
         // メニュー
         private static void ShowWindow()
@@ -72,6 +71,10 @@ namespace UIset
         private void OnGUI()
         {
             string avatarName = avatarObject.name;
+            ObjectReader or = new ObjectReader();
+
+            LayarViewer lv = new LayarViewer();
+            lv.SetDict(_gameObjectDict);
 
             //コントローラー名(~~~UIsetアバター名で)
             string controllerPath = avatarSettingInfoPath + "/" + avatarName + "/" + avatarName + ".controller";
@@ -86,12 +89,27 @@ namespace UIset
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("1.ボタンに登録したいアニメを設定してください", EditorStyles.boldLabel);
 
+
+            //アニメーション作成ボタンの説明
+            string labelText = "※オブジェクトを直接設定したい場合は、各xxxObject一番下のボックスに対象のオブジェクトを入れた後、アニメーション作成ボタンを押してください";
+            GUIStyle labelStyle = new GUIStyle(EditorStyles.label);
+            labelStyle.wordWrap = true;
+            labelStyle.fontSize = 10;
+            EditorGUILayout.LabelField(labelText, labelStyle, GUILayout.ExpandWidth(true), GUILayout.Width(EditorGUIUtility.currentViewWidth - 10));
+            labelText = "※既にオブジェクトと同じ名前のアニメーションが作られている時は、自動でセットされます（名前が違う場合は別のオブジェクトとみなされます";
+            EditorGUILayout.LabelField(labelText, labelStyle, GUILayout.ExpandWidth(true), GUILayout.Width(EditorGUIUtility.currentViewWidth - 10));
+            EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
+            //フォントサイズをもとに戻す
+            labelStyle.fontSize = 12;
+
+
+
             //スクロールウィンドウ
             //メインメニュー
             Color originalContentColor = GUI.contentColor;
             GUI.contentColor = Color.white;
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
-            EditorGUILayout.TextField("※アバター正面のメニューです。", EditorStyles.miniLabel);
+            //EditorGUILayout.TextField("※アバター正面のメニューです。", EditorStyles.miniLabel);
             _toggleMainMenu = EditorGUILayout.Foldout(_toggleMainMenu, "MainMenu");
             GUI.contentColor = originalContentColor;
             if (_toggleMainMenu)
@@ -99,8 +117,10 @@ namespace UIset
                 lv.ShowLayerAnimations(animatorController, "Main", avatarObject);
             }
             GUILayout.Space(20);
+
+
             //サブメニュ－１
-            EditorGUILayout.TextField("※アバターから向かって上のメニューです。", EditorStyles.miniLabel);
+            //EditorGUILayout.TextField("※アバターから向かって上のメニューです。", EditorStyles.miniLabel);
             GUI.contentColor = Color.red;
             _toggleSub1Menu = EditorGUILayout.Foldout(_toggleSub1Menu, "Sub1Menu");
             GUI.contentColor = originalContentColor;
@@ -112,9 +132,8 @@ namespace UIset
 
 
             //サブメニュ－２
-            EditorGUILayout.TextField("※アバターから向かって右のメニューです。このレイヤーはいずれか一つだけ選択されます", EditorStyles.miniLabel);
             GUI.contentColor = Color.cyan;
-            _toggleSub2Menu = EditorGUILayout.Foldout(_toggleSub2Menu, "Sub2Menu");
+            _toggleSub2Menu = EditorGUILayout.Foldout(_toggleSub2Menu, "Sub2Menu ※このレイヤーはいずれか一つだけ選択されます");
             GUI.contentColor = originalContentColor;
             //defaultIntの設定
             ModularAvatarParameters MAMergeIntParameters = avatarObject.transform.Find("UIset").GetComponent<ModularAvatarParameters>();
@@ -185,7 +204,7 @@ namespace UIset
             GUILayout.Space(20);
 
             //サブメニュ－３
-            EditorGUILayout.TextField("※アバターから向かって左のメニューです。", EditorStyles.miniLabel);
+            //EditorGUILayout.TextField("※アバターから向かって左のメニューです。", EditorStyles.miniLabel);
             GUI.contentColor = Color.green;
             _toggleSub3Menu = EditorGUILayout.Foldout(_toggleSub3Menu, "Sub3Menu");
             GUI.contentColor = originalContentColor;

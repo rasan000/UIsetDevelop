@@ -3,10 +3,12 @@ using System;
 using System.IO;
 using nadena.dev.modular_avatar.core;
 using UIset.util;
+using UIset.Animation;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Dynamics.Contact.Components;
+using System.Collections.Generic;
 
 namespace UIset.Layar
 {
@@ -18,10 +20,32 @@ namespace UIset.Layar
         /// </summary>
         /// <param name="animatorController"></param>
         /// <param name="layerCategory"></param>
+        ///
+        private string avatarSettingInfoPath;
+
+        public void setSavePass(string savePass)
+        {
+            avatarSettingInfoPath = savePass;
+        }
+
+        // gameObjectとlayanamenameを紐づけるためのリスト
+        private Dictionary<string, GameObject> _gameObjectDict;
+
+        public void SetDict(Dictionary<string, GameObject> gameObjectDict)
+        {
+            _gameObjectDict = gameObjectDict;
+        }
+
         public void ShowLayerAnimations(AnimatorController animatorController, string layerCategory, GameObject avatarObject)
         {
             AnimationClip animeEmpty = AssetDatabase.LoadAssetAtPath("Assets/UIset/src/Animation/Empty.anim", typeof(AnimationClip)) as AnimationClip;
             ObjectReader or = new ObjectReader();
+
+
+            AnimationCreator ac = new AnimationCreator();
+
+
+            AnimationSetter aseter = new AnimationSetter();
 
             EditorGUI.indentLevel++;
             foreach (AnimatorControllerLayer layer in animatorController.layers)
@@ -204,11 +228,52 @@ namespace UIset.Layar
                         }
 
 
+                        //アニメーション作成フィールド
+                        EditorGUILayout.BeginHorizontal();
+                        if (_gameObjectDict.ContainsKey(layer.name))
+                        {
+                            GameObject tempGameObject = EditorGUILayout.ObjectField(_gameObjectDict[layer.name], typeof(GameObject), true, GUILayout.Width(200)) as GameObject;
+                            _gameObjectDict[layer.name] = tempGameObject;
+                            //アニメーション作成ボタン
+                            if (GUILayout.Button("アニメーション作成"))
+                            {
+                                //アニメーション作成とセット
+                                ac.CreateAnimation(_gameObjectDict[layer.name], avatarObject);
+
+
+                                foreach (ChildAnimatorState state in layer.stateMachine.states)
+                                {
+                                    if (state.state.name.Contains("ButtonON"))
+                                    {
+                                        state.state.motion = aseter.SetAnimation(_gameObjectDict[layer.name], avatarObject, "ON");
+
+                                    }
+                                    if (state.state.name.Contains("ButtonOFF"))
+                                    {
+
+                                        state.state.motion = aseter.SetAnimation(_gameObjectDict[layer.name], avatarObject, "OFF"); ;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            GameObject tempGameObject = EditorGUILayout.ObjectField(null, typeof(GameObject), true, GUILayout.Width(200)) as GameObject;
+                            _gameObjectDict.Add(layer.name, tempGameObject);
+                        }
+
+                        EditorGUILayout.EndHorizontal();
+
+
+
+
+
 
                         //write horizontal line
                         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
                         //スペースを開ける
                         EditorGUILayout.Space(10);
+
                     }
                 }
             }
