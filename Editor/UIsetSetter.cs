@@ -151,7 +151,10 @@ public class UIsetSetter : UnityEditor.EditorWindow
                     UIObject.SetActive(false);
                     UIsetObject.SetActive(true);
                     ringObject.SetActive(true);
-
+                    if (UIsetObject.GetComponent<ModularAvatarMergeAnimator>().animator == null)
+                    {
+                        UIsetObject.GetComponent<ModularAvatarMergeAnimator>().animator = animatorController;
+                    }
                 }
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
