@@ -116,7 +116,7 @@ public class UIsetSetter : UnityEditor.EditorWindow
 
                 //指輪のポジション調整
                 EditorGUILayout.LabelField("--------------------------------------------------", EditorStyles.boldLabel);
-                EditorGUILayout.LabelField("3.以下のボタンを押してから指輪の位置を調整してください", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("3.以下のボタンを押してから指輪を左手人差し指の位置にセットしてください", EditorStyles.boldLabel);
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
                 GameObject ringPointObject = or.FindGameObjectByName(avatarObject.transform.Find("UIset").gameObject, "RingPoint--(指輪の場所が調整できます)--");
