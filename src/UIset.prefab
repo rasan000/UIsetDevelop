@@ -14927,7 +14927,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub3Object3Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251176692471816
 GameObject:
   m_ObjectHideFlags: 0
@@ -24975,7 +24975,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub2Object1Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251176778686335
 GameObject:
   m_ObjectHideFlags: 0
@@ -25063,7 +25063,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: SubMenu3Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251176796003138
 GameObject:
   m_ObjectHideFlags: 0
@@ -25203,7 +25203,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: MainObject1Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251176815017780
 GameObject:
   m_ObjectHideFlags: 0
@@ -30218,7 +30218,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: SubMenu2Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251176847510705
 GameObject:
   m_ObjectHideFlags: 0
@@ -30308,7 +30308,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub3Object1Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251176900248121
 GameObject:
   m_ObjectHideFlags: 0
@@ -30365,7 +30365,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub1Object2Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251176907677805
 GameObject:
   m_ObjectHideFlags: 0
@@ -30972,7 +30972,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub2Object5Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177088376540
 GameObject:
   m_ObjectHideFlags: 0
@@ -35872,7 +35872,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: MainObject3Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177153435933
 GameObject:
   m_ObjectHideFlags: 0
@@ -45665,7 +45665,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: MainObject4Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177206162932
 GameObject:
   m_ObjectHideFlags: 0
@@ -45805,7 +45805,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: LockContact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177219199147
 GameObject:
   m_ObjectHideFlags: 0
@@ -45862,7 +45862,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: MainMenuContact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177232097069
 GameObject:
   m_ObjectHideFlags: 0
@@ -45950,7 +45950,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: MainObject6Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177260752097
 GameObject:
   m_ObjectHideFlags: 0
@@ -46090,7 +46090,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub2Object4Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177299030753
 GameObject:
   m_ObjectHideFlags: 0
@@ -61088,7 +61088,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: SubMenu2Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177439869243
 GameObject:
   m_ObjectHideFlags: 0
@@ -66105,7 +66105,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub2Object2Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177507492515
 GameObject:
   m_ObjectHideFlags: 0
@@ -71183,7 +71183,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: SubMenu1Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177598543214
 GameObject:
   m_ObjectHideFlags: 0
@@ -71371,7 +71371,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub3Object4Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177648013657
 GameObject:
   m_ObjectHideFlags: 0
@@ -72067,7 +72067,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub2Object3Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177753378111
 GameObject:
   m_ObjectHideFlags: 0
@@ -72203,7 +72203,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: MainObject5Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177765719338
 GameObject:
   m_ObjectHideFlags: 0
@@ -87074,7 +87074,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: SubMenu3Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177860699245
 GameObject:
   m_ObjectHideFlags: 0
@@ -87162,7 +87162,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: SubMenu1Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177869873187
 GameObject:
   m_ObjectHideFlags: 0
@@ -87219,7 +87219,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: MainMenuContact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251177872439258
 GameObject:
   m_ObjectHideFlags: 0
@@ -102061,7 +102061,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub2Object6Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251178079233802
 GameObject:
   m_ObjectHideFlags: 0
@@ -102118,7 +102118,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub1Object1Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251178087149849
 GameObject:
   m_ObjectHideFlags: 0
@@ -127040,7 +127040,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: MainObject2Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251178293422921
 GameObject:
   m_ObjectHideFlags: 0
@@ -136964,7 +136964,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub3Object5Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251178410488259
 GameObject:
   m_ObjectHideFlags: 0
@@ -141832,7 +141832,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: MuteContact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251178422348859
 GameObject:
   m_ObjectHideFlags: 0
@@ -162451,7 +162451,7 @@ MonoBehaviour:
   localOnly: 0
   receiverType: 1
   parameter: Sub3Object2Contact
-  minVelocity: 0.1
+  minVelocity: 0.3
 --- !u!1 &1308251178687105642
 GameObject:
   m_ObjectHideFlags: 0
